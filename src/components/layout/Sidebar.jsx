@@ -11,6 +11,7 @@ import {
     ChevronRight,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useAuthStore } from '../../stores/authStore';
 
 const navItems = [
     {
@@ -78,6 +79,7 @@ const platformDotColor = {
 export default function Sidebar() {
     const [collapsed, setCollapsed] = useState(false);
     const location = useLocation();
+    const user = useAuthStore((s) => s.user);
 
     return (
         <aside className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''}`}>
@@ -139,10 +141,12 @@ export default function Sidebar() {
             {!collapsed && (
                 <div className="sidebar-footer">
                     <div className="sidebar-user">
-                        <div className="sidebar-user-avatar">U</div>
+                        <div className="sidebar-user-avatar">
+                            {(user?.displayName || 'U')[0].toUpperCase()}
+                        </div>
                         <div className="sidebar-user-info">
-                            <span className="sidebar-user-name">User</span>
-                            <span className="sidebar-user-email">Sign in to sync</span>
+                            <span className="sidebar-user-name">{user?.displayName || 'User'}</span>
+                            <span className="sidebar-user-email">{user?.email || 'developer@codefolio.dev'}</span>
                         </div>
                     </div>
                 </div>

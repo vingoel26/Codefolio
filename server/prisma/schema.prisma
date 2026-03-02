@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================
+// User
+// =============================================
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  username    String?  @unique
+  displayName String?
+  avatarUrl   String?
+  bio         String?
+  provider    String   // 'google' | 'github'
+  providerId  String   // OAuth provider user ID
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  refreshTokens RefreshToken[]
+  linkedAccounts LinkedAccount[]
+  snippets       Snippet[]
+
+  @@unique([provider, providerId])
+  @@map("users")
+}
+
+// =============================================
+// Refresh Tokens (for JWT rotation)
+// =============================================
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// =============================================
+// Linked Platform Accounts (Multi-ID)
+// =============================================
+model LinkedAccount {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform  String   // 'codeforces' | 'leetcode' | 'codechef' | 'gfg'
+  handle    String   // The platform username/handle
+  label     String?  // Custom label: 'Main', 'Practice', etc.
+  isPrimary Boolean  @default(false)
+  lastSync  DateTime?
+  data      Json?    // Cached platform data
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, platform, handle])
+  @@index([userId])
+  @@map("linked_accounts")
+}
+
+// =============================================
+// Algorithm Snippets (Vault)
+// =============================================
+model Snippet {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  code      String
+  language  String   // 'cpp', 'python', 'java', etc.
+  category  String?  // 'Segment Tree', 'DSU', 'Dijkstra', etc.
+  tags      String[] // Array of string tags
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("snippets")
+}

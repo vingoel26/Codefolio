@@ -199,4 +199,38 @@ export const useAuthStore = create((set, get) => ({
     },
 
     clearError: () => set({ error: null }),
+
+    /**
+     * Set access token directly (used by AuthCallback after backend redirect).
+     */
+    setAccessToken: (token) => set({ accessToken: token }),
+
+    /**
+     * Fetch current user profile using the access token.
+     * Used after OAuth callback to load user data.
+     */
+    fetchMe: async () => {
+        const { accessToken } = get();
+        if (!accessToken) return false;
+
+        try {
+            const res = await fetch(`${API_URL}/auth/me`, {
+                headers: { Authorization: `Bearer ${accessToken}` },
+                credentials: 'include',
+            });
+
+            if (!res.ok) return false;
+
+            const data = await res.json();
+            set({
+                user: data.user,
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+            });
+            return true;
+        } catch {
+            return false;
+        }
+    },
 }));

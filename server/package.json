@@ -1,0 +1,30 @@
+{
+    "name": "codefolio-server",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "Codefolio backend — Express + Prisma + JWT",
+    "main": "src/index.js",
+    "scripts": {
+        "dev": "node --watch src/index.js",
+        "start": "node src/index.js",
+        "prisma:generate": "npx prisma generate",
+        "prisma:push": "npx prisma db push",
+        "prisma:studio": "npx prisma studio",
+        "prisma:migrate": "npx prisma migrate dev"
+    },
+    "dependencies": {
+        "@prisma/client": "^6.4.0",
+        "bcryptjs": "^2.4.3",
+        "cookie-parser": "^1.4.7",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "jsonwebtoken": "^9.0.2",
+        "passport": "^0.7.0",
+        "passport-github2": "^0.1.12",
+        "passport-google-oauth20": "^2.0.0"
+    },
+    "devDependencies": {
+        "prisma": "^6.4.0"
+    }
+}

@@ -1,36 +1,54 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 
 /**
  * OAuth callback handler page.
- * The OAuth provider redirects here with a `code` query parameter.
- * We exchange the code for tokens via the backend.
+ * 
+ * The backend redirects here with a `token` query parameter (access token).
+ * The refresh token is set as an HttpOnly cookie by the backend.
+ * 
+ * Flow:
+ * 1. User clicks "Continue with Google/GitHub" on Login page
+ * 2. Redirected to backend: /api/auth/google (or /github)
+ * 3. Backend handles OAuth and redirects here: /auth/callback/google?token=xxx
+ * 4. This component saves the access token and fetches user info
  */
 export default function AuthCallback() {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const location = useLocation();
-    const { handleOAuthCallback, error } = useAuthStore();
+    const { setAccessToken, fetchMe, error } = useAuthStore();
+    const hasRun = useRef(false);
 
     useEffect(() => {
-        const code = searchParams.get('code');
-        // Extract provider from the path: /auth/callback/google or /auth/callback/github
-        const pathParts = location.pathname.split('/');
-        const provider = pathParts[pathParts.length - 1]; // 'google' or 'github'
+        if (hasRun.current) return;
+        hasRun.current = true;
 
-        if (code && provider) {
-            handleOAuthCallback(code, provider).then((success) => {
+        const token = searchParams.get('token');
+        const errorParam = searchParams.get('error');
+
+        if (errorParam) {
+            navigate(`/login?error=${errorParam}`, { replace: true });
+            return;
+        }
+
+        if (token) {
+            // Save the access token
+            setAccessToken(token);
+
+            // Fetch user profile
+            fetchMe().then((success) => {
                 if (success) {
                     navigate('/', { replace: true });
                 } else {
-                    navigate('/login', { replace: true });
+                    navigate('/login?error=fetch_failed', { replace: true });
                 }
             });
         } else {
             navigate('/login', { replace: true });
         }
-    }, [searchParams, location, handleOAuthCallback, navigate]);
+    }, [searchParams, navigate, setAccessToken, fetchMe]);
 
     return (
         <div className="auth-callback">
@@ -45,7 +63,7 @@ export default function AuthCallback() {
             ) : (
                 <div className="auth-callback-loading">
                     <div className="auth-callback-spinner" />
-                    <p>Authenticating...</p>
+                    <p>Signing you in...</p>
                 </div>
             )}
 

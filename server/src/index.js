@@ -8,6 +8,7 @@ import { startCron } from './lib/cron.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import syncRoutes from './routes/sync.js';
+import snippetRoutes from './routes/snippets.js';
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/sync', syncRoutes);
+app.use('/api/snippets', snippetRoutes);
 
 // ── Global Error Handler ──
 app.use((err, _req, res, _next) => {

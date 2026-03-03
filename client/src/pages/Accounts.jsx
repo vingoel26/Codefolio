@@ -49,6 +49,7 @@ export default function Accounts() {
     const [formHandle, setFormHandle] = useState('');
     const [formLabel, setFormLabel] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [syncingId, setSyncingId] = useState(null); // 'all' or account id
 
     const authHeaders = {
         'Content-Type': 'application/json',
@@ -88,14 +89,19 @@ export default function Accounts() {
                 body: JSON.stringify({ platform, handle: formHandle.trim(), label: formLabel.trim() || null }),
                 credentials: 'include',
             });
+            const data = await res.json();
             if (!res.ok) {
-                const data = await res.json();
                 throw new Error(data.error || 'Failed to link account');
             }
             setAddingPlatform(null);
             setFormHandle('');
             setFormLabel('');
             await fetchAccounts();
+
+            // Auto-sync the newly linked account
+            if (data.account?.id) {
+                handleSync(data.account.id);
+            }
         } catch (err) {
             setError(err.message);
         } finally {
@@ -159,6 +165,48 @@ export default function Accounts() {
         }
     };
 
+    // ── Sync single account ──
+    const handleSync = async (id) => {
+        setSyncingId(id);
+        setError('');
+        try {
+            const res = await fetch(`${API_URL}/sync/account/${id}`, {
+                method: 'POST',
+                headers: authHeaders,
+                credentials: 'include',
+            });
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Sync failed');
+            }
+            await fetchAccounts();
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setSyncingId(null);
+        }
+    };
+
+    // ── Sync all accounts ──
+    const handleSyncAll = async () => {
+        setSyncingId('all');
+        setError('');
+        try {
+            const res = await fetch(`${API_URL}/sync/all`, {
+                method: 'POST',
+                headers: authHeaders,
+                credentials: 'include',
+            });
+            if (!res.ok) throw new Error('Sync failed');
+            await fetchAccounts();
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setSyncingId(null);
+        }
+    };
+
+
     // ── Group accounts by platform ──
     const groupedByPlatform = PLATFORMS.map((p) => ({
         ...p,
@@ -185,9 +233,20 @@ export default function Accounts() {
                         You can add multiple accounts per platform.
                     </p>
                 </div>
-                <button className="accounts-refresh-btn" onClick={fetchAccounts} title="Refresh">
-                    <RefreshCw size={18} />
-                </button>
+                <div className="accounts-header-actions">
+                    <button
+                        className="accounts-sync-all-btn"
+                        onClick={handleSyncAll}
+                        disabled={syncingId === 'all' || accounts.length === 0}
+                        title="Sync all accounts"
+                    >
+                        {syncingId === 'all' ? <Loader2 size={16} className="spin" /> : <RefreshCw size={16} />}
+                        Sync All
+                    </button>
+                    <button className="accounts-refresh-btn" onClick={fetchAccounts} title="Refresh">
+                        <RefreshCw size={18} />
+                    </button>
+                </div>
             </div>
 
             {error && (
@@ -309,6 +368,14 @@ export default function Accounts() {
                                         )}
 
                                         <div className="account-actions">
+                                            <button
+                                                className={`account-action-btn ${syncingId === acc.id ? 'syncing' : ''}`}
+                                                onClick={() => handleSync(acc.id)}
+                                                disabled={!!syncingId}
+                                                title="Sync now"
+                                            >
+                                                {syncingId === acc.id ? <Loader2 size={14} className="spin" /> : <RefreshCw size={14} />}
+                                            </button>
                                             <a
                                                 href={platform.profileUrl(acc.handle)}
                                                 target="_blank"
@@ -416,6 +483,41 @@ const pageStyle = `
     .accounts-refresh-btn:hover {
         color: var(--text-primary);
         border-color: var(--border-strong);
+    }
+
+    .accounts-header-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .accounts-sync-all-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 16px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius-md);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        font-family: var(--font-sans);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .accounts-sync-all-btn:hover:not(:disabled) {
+        background: var(--accent-hover);
+    }
+
+    .accounts-sync-all-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .account-action-btn.syncing {
+        color: var(--accent);
     }
 
     .accounts-error {

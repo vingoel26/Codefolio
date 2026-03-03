@@ -4,8 +4,10 @@ import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import config from './config.js';
 import { configurePassport } from './lib/passport.js';
+import { startCron } from './lib/cron.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
+import syncRoutes from './routes/sync.js';
 
 const app = express();
 
@@ -35,6 +37,7 @@ app.get('/api/health', (_req, res) => {
 // ── Routes ──
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/sync', syncRoutes);
 
 // ── Global Error Handler ──
 app.use((err, _req, res, _next) => {
@@ -52,6 +55,7 @@ app.listen(config.port, () => {
     console.log(`  🔑 Google OAuth: ${config.google.clientId ? '✓ configured' : '✗ not configured'}`);
     console.log(`  🔑 GitHub OAuth: ${config.github.clientId ? '✓ configured' : '✗ not configured'}`);
     console.log(`  📦 Environment: ${config.nodeEnv}\n`);
+    startCron();
 });
 
 export default app;

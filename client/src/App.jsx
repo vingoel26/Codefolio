@@ -4,6 +4,7 @@ import { useAuthStore } from './stores/authStore';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import AuthCallback from './pages/AuthCallback';
 import Dashboard from './pages/Dashboard';
 import Codeforces from './pages/Codeforces';
@@ -31,6 +32,7 @@ function App() {
                 <Routes>
                     {/* Public routes */}
                     <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
                     <Route path="/auth/callback/:provider" element={<AuthCallback />} />
 
                     {/* Protected routes (require auth) */}

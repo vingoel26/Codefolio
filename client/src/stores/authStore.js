@@ -198,6 +198,72 @@ export const useAuthStore = create((set, get) => ({
         });
     },
 
+    /**
+     * Register a new account with email and password.
+     */
+    register: async ({ email, password, displayName, username }) => {
+        set({ isLoading: true, error: null });
+        try {
+            const res = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, displayName, username }),
+                credentials: 'include',
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Registration failed');
+            }
+
+            set({
+                user: data.user,
+                accessToken: data.accessToken,
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+            });
+            return true;
+        } catch (err) {
+            set({ isLoading: false, error: err.message, isAuthenticated: false });
+            return false;
+        }
+    },
+
+    /**
+     * Login with email and password.
+     */
+    loginWithEmail: async (email, password) => {
+        set({ isLoading: true, error: null });
+        try {
+            const res = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+                credentials: 'include',
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Login failed');
+            }
+
+            set({
+                user: data.user,
+                accessToken: data.accessToken,
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+            });
+            return true;
+        } catch (err) {
+            set({ isLoading: false, error: err.message, isAuthenticated: false });
+            return false;
+        }
+    },
+
     clearError: () => set({ error: null }),
 
     /**

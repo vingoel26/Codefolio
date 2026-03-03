@@ -1,28 +1,40 @@
 import { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { useTheme } from '../hooks/useTheme';
 import ThemeToggle from '../components/ui/ThemeToggle';
 
-export default function Login() {
-    const { loginWithProvider, loginWithEmail, isLoading, error, clearError } = useAuthStore();
+export default function Signup() {
+    const { register, loginWithProvider, isLoading, error, clearError } = useAuthStore();
     const navigate = useNavigate();
-    const location = useLocation();
     const { isDark } = useTheme();
 
-    const from = location.state?.from?.pathname || '/';
-
-    // Email/password form state
+    // Form state
+    const [displayName, setDisplayName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [localError, setLocalError] = useState('');
 
-    const handleEmailLogin = async (e) => {
+    const handleSignup = async (e) => {
         e.preventDefault();
-        const success = await loginWithEmail(email, password);
-        if (success) navigate(from, { replace: true });
+        setLocalError('');
+
+        if (password !== confirmPassword) {
+            setLocalError('Passwords do not match');
+            return;
+        }
+
+        if (password.length < 6) {
+            setLocalError('Password must be at least 6 characters');
+            return;
+        }
+
+        const success = await register({ email, password, displayName: displayName || undefined });
+        if (success) navigate('/', { replace: true });
     };
 
-
+    const displayError = localError || error;
 
     return (
         <div className="login-page">
@@ -31,37 +43,47 @@ export default function Login() {
             <div className="login-bg-blob login-bg-blob-2" />
             <div className="login-bg-blob login-bg-blob-3" />
 
-            {/* Theme toggle in corner */}
+            {/* Theme toggle */}
             <div className="login-theme-toggle">
                 <ThemeToggle />
             </div>
 
-            {/* Login Card */}
+            {/* Signup Card */}
             <div className="login-card glass-card animate-fade-in">
-                {/* Logo */}
                 <div className="login-logo">
                     <div className="login-logo-icon">CF</div>
                 </div>
 
                 <h1 className="login-title">
-                    Welcome back to <span className="gradient-text">Codefolio</span>
+                    Join <span className="gradient-text">Codefolio</span>
                 </h1>
                 <p className="login-subtitle">
-                    Sign in to your account to continue.
+                    Create your account and start tracking your competitive programming journey.
                 </p>
 
                 {/* Error */}
-                {error && (
-                    <div className="login-error" onClick={clearError}>
-                        <span>⚠️ {error}</span>
+                {displayError && (
+                    <div className="login-error" onClick={() => { clearError(); setLocalError(''); }}>
+                        <span>⚠️ {displayError}</span>
                         <span className="login-error-dismiss">✕</span>
                     </div>
                 )}
 
-                {/* Email/Password Form */}
-                <form className="login-form" onSubmit={handleEmailLogin}>
+                {/* Signup Form */}
+                <form className="login-form" onSubmit={handleSignup}>
                     <div className="login-field">
-                        <label htmlFor="email">Email</label>
+                        <label htmlFor="displayName">Display Name</label>
+                        <input
+                            id="displayName"
+                            type="text"
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                            placeholder="Your name"
+                            autoComplete="name"
+                        />
+                    </div>
+                    <div className="login-field">
+                        <label htmlFor="email">Email <span style={{ color: 'var(--error)' }}>*</span></label>
                         <input
                             id="email"
                             type="email"
@@ -73,26 +95,39 @@ export default function Login() {
                         />
                     </div>
                     <div className="login-field">
-                        <label htmlFor="password">Password</label>
+                        <label htmlFor="password">Password <span style={{ color: 'var(--error)' }}>*</span></label>
                         <input
                             id="password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Min. 6 characters"
+                            required
+                            minLength={6}
+                            autoComplete="new-password"
+                        />
+                    </div>
+                    <div className="login-field">
+                        <label htmlFor="confirmPassword">Confirm Password <span style={{ color: 'var(--error)' }}>*</span></label>
+                        <input
+                            id="confirmPassword"
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="••••••••"
                             required
                             minLength={6}
-                            autoComplete="current-password"
+                            autoComplete="new-password"
                         />
                     </div>
                     <button className="login-btn login-btn-primary" type="submit" disabled={isLoading}>
-                        {isLoading ? 'Signing in...' : 'Sign In'}
+                        {isLoading ? 'Creating account...' : 'Create Account'}
                     </button>
                 </form>
 
                 {/* Divider */}
                 <div className="login-divider">
-                    <span>or continue with</span>
+                    <span>or sign up with</span>
                 </div>
 
                 {/* OAuth Buttons */}
@@ -123,14 +158,14 @@ export default function Login() {
                     </button>
                 </div>
 
-                {/* Sign up link */}
+                {/* Login link */}
                 <p className="login-signup-link">
-                    Don't have an account? <Link to="/signup">Sign up</Link>
+                    Already have an account? <Link to="/login">Sign in</Link>
                 </p>
 
                 {/* Footer */}
                 <p className="login-footer">
-                    By continuing, you agree to our Terms of Service and Privacy Policy.
+                    By creating an account, you agree to our Terms of Service and Privacy Policy.
                 </p>
             </div>
 
@@ -192,14 +227,14 @@ export default function Login() {
                 .login-card {
                     width: 100%;
                     max-width: 440px;
-                    padding: 48px 40px;
+                    padding: 44px 40px;
                     text-align: center;
                     position: relative;
                     z-index: 1;
                 }
 
                 .login-logo {
-                    margin-bottom: 28px;
+                    margin-bottom: 24px;
                 }
 
                 .login-logo-icon {
@@ -227,7 +262,7 @@ export default function Login() {
                     color: var(--text-secondary);
                     font-size: 0.9375rem;
                     line-height: 1.6;
-                    margin-bottom: 28px;
+                    margin-bottom: 24px;
                 }
 
                 .login-error {
@@ -249,12 +284,11 @@ export default function Login() {
                     font-size: 0.75rem;
                 }
 
-                /* ── Form ── */
                 .login-form {
                     display: flex;
                     flex-direction: column;
-                    gap: 16px;
-                    margin-bottom: 24px;
+                    gap: 14px;
+                    margin-bottom: 20px;
                     text-align: left;
                 }
 
@@ -288,7 +322,6 @@ export default function Login() {
                     color: var(--text-muted);
                 }
 
-                /* ── Buttons ── */
                 .login-buttons {
                     display: flex;
                     gap: 12px;
@@ -330,7 +363,6 @@ export default function Login() {
                     color: #ffffff;
                     border: none;
                     padding: 13px 20px;
-                    font-size: 0.9375rem;
                 }
 
                 .login-btn-primary:hover:not(:disabled) {
@@ -374,8 +406,6 @@ export default function Login() {
                     height: 1px;
                     background: var(--border);
                 }
-
-
 
                 .login-signup-link {
                     font-size: 0.875rem;

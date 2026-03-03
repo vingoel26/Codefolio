@@ -5,7 +5,7 @@
     "description": "Codefolio backend — Express + Prisma + JWT",
     "main": "src/index.js",
     "scripts": {
-        "dev": "node --watch src/index.js",
+        "dev": "nodemon src/index.js",
         "start": "node src/index.js",
         "prisma:generate": "npx prisma generate",
         "prisma:push": "npx prisma db push",
@@ -25,6 +25,7 @@
         "passport-google-oauth20": "^2.0.0"
     },
     "devDependencies": {
+        "nodemon": "^3.1.14",
         "prisma": "^6.4.0"
     }
 }

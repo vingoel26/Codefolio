@@ -111,4 +111,29 @@ router.get('/data/:platform/:accountId', async (req, res) => {
     });
 });
 
+// GET /api/sync/accounts/:platform — get ALL accounts for a platform (multi-account)
+router.get('/accounts/:platform', async (req, res) => {
+    const { platform } = req.params;
+
+    const accounts = await prisma.linkedAccount.findMany({
+        where: {
+            userId: req.user.id,
+            platform,
+        },
+        orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
+    });
+
+    res.json({
+        accounts: accounts.map((a) => ({
+            id: a.id,
+            handle: a.handle,
+            platform: a.platform,
+            label: a.label,
+            isPrimary: a.isPrimary,
+            lastSync: a.lastSync,
+            data: a.data,
+        })),
+    });
+});
+
 export default router;

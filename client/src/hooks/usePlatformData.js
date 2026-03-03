@@ -5,31 +5,37 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 /**
  * Hook to fetch synced platform data from the backend.
+ * Supports multi-account: fetches all accounts for a platform,
+ * lets user switch between them.
  * @param {string} platform - 'codeforces' | 'leetcode' | 'codechef' | 'gfg'
  */
 export function usePlatformData(platform) {
     const { accessToken } = useAuthStore();
-    const [data, setData] = useState(null);
-    const [account, setAccount] = useState(null);
+    const [accounts, setAccounts] = useState([]);       // all linked accounts
+    const [activeIdx, setActiveIdx] = useState(0);       // currently selected account index
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [syncing, setSyncing] = useState(false);
 
-    const fetchData = useCallback(async () => {
+    const fetchAll = useCallback(async () => {
         if (!accessToken) return;
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(`${API_URL}/sync/data/${platform}`, {
+            const res = await fetch(`${API_URL}/sync/accounts/${platform}`, {
                 headers: { Authorization: `Bearer ${accessToken}` },
                 credentials: 'include',
             });
             if (!res.ok) {
-                const err = await res.json();
+                const err = await res.json().catch(() => ({}));
                 throw new Error(err.error || `No ${platform} data available`);
             }
             const json = await res.json();
-            setAccount(json.account);
-            setData(json.data);
+            const accts = json.accounts || [];
+            setAccounts(accts);
+            if (accts.length === 0) {
+                setError(`No ${platform} account linked. Go to Settings → Accounts to add one.`);
+            }
         } catch (err) {
             setError(err.message);
         } finally {
@@ -37,24 +43,40 @@ export function usePlatformData(platform) {
         }
     }, [accessToken, platform]);
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    useEffect(() => { fetchAll(); }, [fetchAll]);
 
+    // Currently active account and its data
+    const activeAccount = accounts[activeIdx] || null;
+    const data = activeAccount?.data || null;
+
+    // Sync current account
     const sync = useCallback(async () => {
-        if (!account?.id || !accessToken) return;
-        setLoading(true);
+        if (!activeAccount?.id || !accessToken) return;
+        setSyncing(true);
         try {
-            await fetch(`${API_URL}/sync/account/${account.id}`, {
+            await fetch(`${API_URL}/sync/account/${activeAccount.id}`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${accessToken}` },
                 credentials: 'include',
             });
-            await fetchData();
+            await fetchAll();
         } catch {
-            // ignore sync errors, data will refresh on next load
+            // ignore
+        } finally {
+            setSyncing(false);
         }
-    }, [account, accessToken, fetchData]);
+    }, [activeAccount, accessToken, fetchAll]);
 
-    return { data, account, loading, error, refetch: fetchData, sync };
+    return {
+        data,
+        account: activeAccount,
+        accounts,
+        activeIdx,
+        setActiveIdx,
+        loading,
+        error,
+        syncing,
+        refetch: fetchAll,
+        sync,
+    };
 }

@@ -11,6 +11,7 @@ const pageTitles = {
     '/snippets': 'Snippet Vault',
     '/accounts': 'Connected Accounts',
     '/settings': 'Settings',
+    '/profile': 'Profile',
 };
 
 const pageDescriptions = {
@@ -22,6 +23,7 @@ const pageDescriptions = {
     '/snippets': 'Your personal algorithm template library',
     '/accounts': 'Manage linked platform accounts',
     '/settings': 'Profile & app preferences',
+    '/profile': 'Your public profile & stats',
 };
 
 export default function Navbar() {

@@ -4,7 +4,108 @@ import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
-// All user routes require authentication
+// ═══════════════════════════════════════════
+// Public Profile (no auth required)
+// ═══════════════════════════════════════════
+
+router.get('/u/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+
+        const user = await prisma.user.findUnique({
+            where: { username },
+            select: {
+                id: true,
+                username: true,
+                displayName: true,
+                avatarUrl: true,
+                bio: true,
+                createdAt: true,
+                linkedAccounts: {
+                    where: { isPrimary: true },
+                    select: {
+                        id: true,
+                        platform: true,
+                        handle: true,
+                        isPrimary: true,
+                        lastSync: true,
+                        data: true,
+                    },
+                },
+            },
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Extract platform-specific stats from cached data
+        let grandTotalSolved = 0;
+        let bestRating = 0;
+        let totalContests = 0;
+
+        const platforms = user.linkedAccounts.map((acc) => {
+            const d = typeof acc.data === 'string' ? JSON.parse(acc.data) : acc.data;
+            let solved = 0, rating = 0, contests = 0, heatmap = null;
+
+            if (d) {
+                if (acc.platform === 'leetcode') {
+                    solved = d.stats?.totalSolved || 0;
+                    rating = d.contest?.rating || 0;
+                    contests = d.contest?.contestsAttended || 0;
+                    heatmap = d.submissionHeatmap || null;
+                } else if (acc.platform === 'codeforces') {
+                    solved = d.stats?.problemsSolved || 0;
+                    rating = d.profile?.rating || 0;
+                    contests = d.stats?.contestsParticipated || 0;
+                    heatmap = d.submissionHeatmap || null;
+                } else if (acc.platform === 'codechef') {
+                    solved = d.stats?.totalProblemsSolved || 0;
+                    rating = d.stats?.currentRating || 0;
+                    heatmap = d.submissionHeatmap || null;
+                } else if (acc.platform === 'gfg') {
+                    solved = d.stats?.totalProblemsSolved || 0;
+                    rating = d.stats?.codingScore || 0;
+                }
+            }
+
+            grandTotalSolved += solved;
+            totalContests += contests;
+            if (rating > bestRating) bestRating = rating;
+
+            return {
+                platform: acc.platform,
+                handle: acc.handle,
+                solved,
+                rating,
+                contests,
+                heatmap,
+            };
+        });
+
+        const platformsLinked = platforms.length;
+
+        res.json({
+            profile: {
+                username: user.username,
+                displayName: user.displayName,
+                avatarUrl: user.avatarUrl,
+                bio: user.bio,
+                joinedAt: user.createdAt,
+                grandTotalSolved,
+                bestRating,
+                totalContests,
+                platformsLinked,
+            },
+            platforms,
+        });
+    } catch (err) {
+        console.error('Error fetching public profile:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// All remaining user routes require authentication
 router.use(requireAuth);
 
 // ═══════════════════════════════════════════

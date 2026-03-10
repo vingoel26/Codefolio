@@ -9,6 +9,7 @@ import {
     Settings,
     ChevronLeft,
     ChevronRight,
+    User,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
@@ -49,6 +50,12 @@ const navItems = [
         platform: 'gfg',
     },
     { type: 'divider' },
+    {
+        label: 'Profile',
+        path: '/profile',
+        icon: User,
+        description: 'Your public profile',
+    },
     {
         label: 'Snippets',
         path: '/snippets',

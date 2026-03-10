@@ -14,6 +14,7 @@ import GFG from './pages/GFG';
 import Snippets from './pages/Snippets';
 import Accounts from './pages/Accounts';
 import Settings from './pages/Settings';
+import Profile from './pages/Profile';
 
 function AppInit({ children }) {
     const initialize = useAuthStore((s) => s.initialize);
@@ -34,6 +35,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/auth/callback/:provider" element={<AuthCallback />} />
+                    <Route path="/u/:username" element={<Profile standalone />} />
 
                     {/* Protected routes (require auth) */}
                     <Route
@@ -51,6 +53,7 @@ function App() {
                         <Route path="/snippets" element={<Snippets />} />
                         <Route path="/accounts" element={<Accounts />} />
                         <Route path="/settings" element={<Settings />} />
+                        <Route path="/profile" element={<Profile />} />
                     </Route>
                 </Routes>
             </AppInit>

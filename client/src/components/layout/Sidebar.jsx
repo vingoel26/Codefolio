@@ -10,6 +10,7 @@ import {
     ChevronLeft,
     ChevronRight,
     User,
+    LogOut, Code, Compass, Rss
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
@@ -20,6 +21,12 @@ const navItems = [
         path: '/',
         icon: LayoutDashboard,
         description: 'All platforms overview',
+    },
+    {
+        label: 'Community',
+        path: '/feed',
+        icon: Rss,
+        description: 'Community Feed',
     },
     {
         label: 'Codeforces',
@@ -59,7 +66,7 @@ const navItems = [
     {
         label: 'Snippets',
         path: '/snippets',
-        icon: Code2,
+        icon: Code,
         description: 'Algorithm vault',
     },
     {

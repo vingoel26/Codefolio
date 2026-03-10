@@ -12,6 +12,7 @@ const pageTitles = {
     '/accounts': 'Connected Accounts',
     '/settings': 'Settings',
     '/profile': 'Profile',
+    '/feed': 'Community Feed',
 };
 
 const pageDescriptions = {
@@ -24,6 +25,7 @@ const pageDescriptions = {
     '/accounts': 'Manage linked platform accounts',
     '/settings': 'Profile & app preferences',
     '/profile': 'Your public profile & stats',
+    '/feed': 'Recent activity from developers you follow',
 };
 
 export default function Navbar() {

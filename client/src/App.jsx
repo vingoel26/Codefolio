@@ -7,14 +7,15 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import AuthCallback from './pages/AuthCallback';
 import Dashboard from './pages/Dashboard';
-import Codeforces from './pages/Codeforces';
 import LeetCode from './pages/LeetCode';
 import CodeChef from './pages/CodeChef';
 import GFG from './pages/GFG';
 import Snippets from './pages/Snippets';
+import Codeforces from './pages/Codeforces';
 import Accounts from './pages/Accounts';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
+import Feed from './pages/Feed';
 
 function AppInit({ children }) {
     const initialize = useAuthStore((s) => s.initialize);
@@ -46,6 +47,7 @@ function App() {
                         }
                     >
                         <Route path="/" element={<Dashboard />} />
+                        <Route path="/feed" element={<Feed />} />
                         <Route path="/codeforces" element={<Codeforces />} />
                         <Route path="/leetcode" element={<LeetCode />} />
                         <Route path="/codechef" element={<CodeChef />} />

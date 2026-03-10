@@ -107,12 +107,19 @@ export const useAuthStore = create((set, get) => ({
         } catch {
             // Best effort
         }
+
+        // Ensure browser clears any accessible session local state
+        document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
         set({
             user: null,
             accessToken: null,
             isAuthenticated: false,
             error: null,
         });
+
+        // Force a full redirect to clear any lingering memory state
+        window.location.href = '/login';
     },
 
     /**

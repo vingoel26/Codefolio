@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import {
     User, Edit3, Save, X, Target, TrendingUp, Trophy, Code, Calendar,
-    ExternalLink, Loader2, Copy, Check, Share2,
+    ExternalLink, Loader2, Copy, Check, Share2, UserPlus, UserMinus, Users
 } from 'lucide-react';
 import ThemeToggle from '../components/ui/ThemeToggle';
 
@@ -83,6 +83,11 @@ export default function Profile({ standalone = false }) {
     const [hoverCell, setHoverCell] = useState(null);
     const [usernameError, setUsernameError] = useState('');
 
+    // Social state
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [followersCount, setFollowersCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
+
     const fetchProfile = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -151,6 +156,20 @@ export default function Profile({ standalone = false }) {
                     });
                 }
 
+                // Fetch the social counts via the public endpoint
+                let socialData = { followersCount: 0, followingCount: 0 };
+                try {
+                    const username = currentUser?.username || currentUser?.email?.split('@')[0];
+                    const socialRes = await fetch(`${API_URL}/users/u/${username}`);
+                    if (socialRes.ok) {
+                        const sJson = await socialRes.json();
+                        socialData.followersCount = sJson.profile.followersCount || 0;
+                        socialData.followingCount = sJson.profile.followingCount || 0;
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch social stats for dashboard profile", e);
+                }
+
                 setData({
                     profile: {
                         username: currentUser?.username || currentUser?.email?.split('@')[0],
@@ -162,14 +181,29 @@ export default function Profile({ standalone = false }) {
                         bestRating,
                         totalContests,
                         platformsLinked: platforms.length,
+                        followersCount: socialData.followersCount,
+                        followingCount: socialData.followingCount,
                     },
                     platforms,
                 });
+                
+                setFollowersCount(socialData.followersCount);
+                setFollowingCount(socialData.followingCount);
             } else if (standalone && paramUsername) {
                 // ── Standalone public page: use public endpoint ──
-                const res = await fetch(`${API_URL}/users/u/${paramUsername}`);
+                const headers = {};
+                if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+
+                const res = await fetch(`${API_URL}/users/u/${paramUsername}`, {
+                    headers,
+                    credentials: 'include' // needed to detect if logged-in user follows them
+                });
                 if (!res.ok) throw new Error(res.status === 404 ? 'not_found' : 'server_error');
-                setData(await res.json());
+                const json = await res.json();
+                setData(json);
+                setIsFollowing(json.profile.isFollowing || false);
+                setFollowersCount(json.profile.followersCount || 0);
+                setFollowingCount(json.profile.followingCount || 0);
             } else {
                 throw new Error('not_found');
             }
@@ -223,6 +257,30 @@ export default function Profile({ standalone = false }) {
         navigator.clipboard.writeText(url);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    // Toggle Follow
+    const toggleFollow = async () => {
+        if (!currentUser) return; // Must be logged in
+        
+        const previousState = isFollowing;
+        setIsFollowing(!previousState);
+        setFollowersCount(prev => previousState ? prev - 1 : prev + 1);
+
+        try {
+            const method = previousState ? 'DELETE' : 'POST';
+            const res = await fetch(`${API_URL}/users/u/${data.profile.username}/follow`, {
+                method,
+                headers: { Authorization: `Bearer ${accessToken}` },
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error('Failed to toggle follow');
+        } catch (err) {
+            // Revert on error
+            setIsFollowing(previousState);
+            setFollowersCount(prev => previousState ? prev + 1 : prev - 1);
+            console.error(err);
+        }
     };
 
     // ── Loading ──
@@ -421,9 +479,35 @@ export default function Profile({ standalone = false }) {
                                 {profile.bio && <p className="profile-card-bio">{profile.bio}</p>}
                                 <div className="profile-card-meta">
                                     <span className="profile-card-meta-item">
+                                        <Users size={14} />
+                                        <strong>{followersCount}</strong> followers
+                                    </span>
+                                    <span className="profile-card-meta-item">
+                                        <strong>{followingCount}</strong> following
+                                    </span>
+                                    <span className="profile-card-meta-item">
                                         <Calendar size={14} />
                                         Joined {new Date(profile.joinedAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
                                     </span>
+                                </div>
+                                <div className="profile-card-actions" style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+                                    {isOwner ? (
+                                        <button className="profile-edit-btn" onClick={startEdit}>
+                                            <Edit3 size={14} /> Edit
+                                        </button>
+                                    ) : currentUser ? (
+                                        <button 
+                                            className={`profile-action-btn ${isFollowing ? 'unfollow' : 'follow'}`} 
+                                            onClick={toggleFollow}
+                                        >
+                                            {isFollowing ? <><UserMinus size={14} /> Unfollow</> : <><UserPlus size={14} /> Follow</>}
+                                        </button>
+                                    ) : null}
+
+                                    <button className="profile-share-btn" onClick={copyUrl} disabled={!hasRealUsername} title={hasRealUsername ? "Copy profile link" : "Set a username first to share"}>
+                                        {copied ? <Check size={14} /> : <Share2 size={14} />} 
+                                        {copied ? 'Copied' : 'Share'}
+                                    </button>
                                 </div>
                             </>
                         )}
@@ -623,6 +707,14 @@ const styles = `
     .profile-save-btn:disabled { opacity:0.5; cursor:not-allowed; }
     .profile-cancel-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--bg-tertiary); color:var(--text-secondary); border:1px solid var(--border); border-radius:var(--radius-md); font-weight:600; font-size:0.8125rem; font-family:var(--font-sans); cursor:pointer; transition:all var(--transition-fast); }
     .profile-cancel-btn:hover { color:var(--text-primary); border-color:var(--border-strong); }
+    .profile-edit-btn, .profile-share-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--bg-tertiary); border:1px solid var(--border); border-radius:var(--radius-md); color:var(--text-secondary); font-size:0.8125rem; font-weight:600; cursor:pointer; transition:all var(--transition-fast); font-family:var(--font-sans); }
+    .profile-edit-btn:hover, .profile-share-btn:hover:not(:disabled) { color:var(--text-primary); border-color:var(--accent); }
+    .profile-share-btn:disabled { opacity:0.5; cursor:not-allowed; }
+    
+    .profile-action-btn.follow { display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--text-primary); color:var(--bg-primary); border:none; border-radius:var(--radius-md); font-weight:600; font-size:0.8125rem; font-family:var(--font-sans); cursor:pointer; transition:opacity var(--transition-fast); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .profile-action-btn.follow:hover { opacity:0.9; transform: translateY(-1px); }
+    .profile-action-btn.unfollow { display:flex; align-items:center; gap:6px; padding:8px 16px; background:transparent; color:var(--text-secondary); border:1px solid var(--border); border-radius:var(--radius-md); font-weight:600; font-size:0.8125rem; font-family:var(--font-sans); cursor:pointer; transition:all var(--transition-fast); }
+    .profile-action-btn.unfollow:hover { border-color:var(--error); color:var(--error); background:rgba(255, 60, 60, 0.05); }
 
     /* Stats (same as Dashboard) */
     .stats-grid.grand { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-bottom:24px; }

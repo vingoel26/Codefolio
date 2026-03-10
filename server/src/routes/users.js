@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, optionalAuth } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -8,7 +8,7 @@ const router = Router();
 // Public Profile (no auth required)
 // ═══════════════════════════════════════════
 
-router.get('/u/:username', async (req, res) => {
+router.get('/u/:username', optionalAuth, async (req, res) => {
     try {
         const { username } = req.params;
 
@@ -37,6 +37,19 @@ router.get('/u/:username', async (req, res) => {
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Get follower/following counts
+        const followersCount = await prisma.follows.count({ where: { followingId: user.id } });
+        const followingCount = await prisma.follows.count({ where: { followerId: user.id } });
+
+        // Check if the requesting user is following this profile (optional auth)
+        let isFollowing = false;
+        if (req.user) {
+            const follows = await prisma.follows.findUnique({
+                where: { followerId_followingId: { followerId: req.user.id, followingId: user.id } }
+            });
+            if (follows) isFollowing = true;
         }
 
         // Extract platform-specific stats from cached data
@@ -96,6 +109,9 @@ router.get('/u/:username', async (req, res) => {
                 bestRating,
                 totalContests,
                 platformsLinked,
+                followersCount,
+                followingCount,
+                isFollowing,
             },
             platforms,
         });
@@ -107,6 +123,112 @@ router.get('/u/:username', async (req, res) => {
 
 // All remaining user routes require authentication
 router.use(requireAuth);
+
+// ═══════════════════════════════════════════
+// Follower System (Social)
+// ═══════════════════════════════════════════
+
+// POST /api/users/u/:username/follow
+router.post('/u/:username/follow', async (req, res) => {
+    console.log(`[FOLLOW] User ${req.user.username} (ID: ${req.user.id}) attempting to follow ${req.params.username}`);
+    try {
+        const { username } = req.params;
+        const targetUser = await prisma.user.findUnique({ where: { username } });
+
+        if (!targetUser) return res.status(404).json({ error: 'User not found' });
+        if (targetUser.id === req.user.id) return res.status(400).json({ error: 'Cannot follow yourself' });
+
+        await prisma.follows.create({
+            data: {
+                followerId: req.user.id,
+                followingId: targetUser.id
+            }
+        });
+
+        // Trigger an activity event for the target user (so they see they got a follower)
+        // Wait, the feed shows activities *by* the people you follow. So if I follow John,
+        // it creates an event for *me* hitting a milestone? No, a follow is an event.
+        // For now let's just create the follow relationship.
+        await prisma.activityEvent.create({
+            data: {
+                userId: req.user.id,
+                type: 'NEW_FOLLOW',
+                metadata: { targetUsername: username, targetDisplayName: targetUser.displayName }
+            }
+        });
+
+        res.json({ success: true, isFollowing: true });
+    } catch (err) {
+        if (err.code === 'P2002') return res.json({ success: true, isFollowing: true }); // already following
+        console.error('Follow error:', err);
+        res.status(500).json({ error: 'Failed to follow user' });
+    }
+});
+
+// DELETE /api/users/u/:username/follow
+router.delete('/u/:username/follow', async (req, res) => {
+    console.log(`[UNFOLLOW] User ${req.user.username} (ID: ${req.user.id}) attempting to unfollow ${req.params.username}`);
+    try {
+        const { username } = req.params;
+        const targetUser = await prisma.user.findUnique({ where: { username } });
+
+        if (!targetUser) return res.status(404).json({ error: 'User not found' });
+
+        await prisma.follows.delete({
+            where: {
+                followerId_followingId: {
+                    followerId: req.user.id,
+                    followingId: targetUser.id
+                }
+            }
+        });
+        res.json({ success: true, isFollowing: false });
+    } catch (err) {
+        if (err.code === 'P2025') return res.json({ success: true, isFollowing: false }); // already not following
+        console.error('Unfollow error:', err);
+        res.status(500).json({ error: 'Failed to unfollow user' });
+    }
+});
+
+// GET /api/users/u/:username/followers
+router.get('/u/:username/followers', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const user = await prisma.user.findUnique({ where: { username } });
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        const follows = await prisma.follows.findMany({
+            where: { followingId: user.id },
+            include: {
+                follower: { select: { username: true, displayName: true, avatarUrl: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json({ followers: follows.map(f => f.follower) });
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// GET /api/users/u/:username/following
+router.get('/u/:username/following', async (req, res) => {
+    try {
+        const { username } = req.params;
+        const user = await prisma.user.findUnique({ where: { username } });
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        const follows = await prisma.follows.findMany({
+            where: { followerId: user.id },
+            include: {
+                following: { select: { username: true, displayName: true, avatarUrl: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json({ following: follows.map(f => f.following) });
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
 
 // ═══════════════════════════════════════════
 // Linked Accounts (Platform Account Linking)
@@ -149,6 +271,15 @@ router.post('/linked-accounts', async (req, res) => {
                 label: label || null,
                 isPrimary: existingCount === 0, // First account is auto-primary
             },
+        });
+
+        // Trigger feed activity
+        await prisma.activityEvent.create({
+            data: {
+                userId: req.user.id,
+                type: 'NEW_LINK_ACCOUNT',
+                metadata: { platform, handle: handle.trim() }
+            }
         });
 
         res.status(201).json({ account });

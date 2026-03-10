@@ -30,6 +30,10 @@ model User {
   refreshTokens  RefreshToken[]
   linkedAccounts LinkedAccount[]
   snippets       Snippet[]
+  followers      Follows[]       @relation("followers")
+  following      Follows[]       @relation("following")
+  activities     ActivityEvent[]
+
 
   @@unique([provider, providerId])
   @@map("users")
@@ -88,4 +92,37 @@ model Snippet {
 
   @@index([userId])
   @@map("snippets")
+}
+
+// =============================================
+// Social / Followers
+// =============================================
+model Follows {
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("following", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+// =============================================
+// Activity Feed Events
+// =============================================
+model ActivityEvent {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // 'NEW_LINK_ACCOUNT', 'RATING_UP', 'MILESTONE', etc.
+  metadata  Json     // Arbitrary JSON (platform, handles, old/new values)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activity_events")
 }

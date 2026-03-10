@@ -2,52 +2,41 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
-import config from './config.js';
 import { configurePassport } from './lib/passport.js';
 import { startCron } from './lib/cron.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import syncRoutes from './routes/sync.js';
 import snippetRoutes from './routes/snippets.js';
+import feedRoutes from './routes/feed.js';
+import config from './config.js'; // Keep config for server start logs
 
 const app = express();
 
-// ── Core Middleware ──
+// ── Middleware ──
+app.use(cors({
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
-app.use(
-    cors({
-        origin: config.clientUrl,
-        credentials: true, // Allow cookies
-    })
-);
-
-// ── Passport ──
 configurePassport();
 app.use(passport.initialize());
-
-// ── Health Check ──
-app.get('/api/health', (_req, res) => {
-    res.json({
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        env: config.nodeEnv,
-    });
-});
 
 // ── Routes ──
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/sync', syncRoutes);
 app.use('/api/snippets', snippetRoutes);
+app.use('/api/feed', feedRoutes);
 
 // ── Global Error Handler ──
 app.use((err, _req, res, _next) => {
-    console.error('Unhandled error:', err);
-    res.status(500).json({
-        error: config.nodeEnv === 'development' ? err.message : 'Internal server error',
-    });
+    console.error('Unhandled Server Error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
 });
+
+const PORT = process.env.PORT || 3001;
 
 // ── Start Server ──
 app.listen(config.port, () => {

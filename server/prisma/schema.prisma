@@ -33,6 +33,10 @@ model User {
   followers      Follows[]       @relation("followers")
   following      Follows[]       @relation("following")
   activities     ActivityEvent[]
+  posts          Post[]
+  comments       Comment[]
+  postVotes      PostVote[]
+  bookmarks      Bookmark[]
 
 
   @@unique([provider, providerId])
@@ -125,4 +129,82 @@ model ActivityEvent {
   @@index([userId])
   @@index([createdAt])
   @@map("activity_events")
+}
+
+// =============================================
+// Blog Posts
+// =============================================
+model Post {
+  id          String    @id @default(uuid())
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title       String
+  slug        String    @unique
+  content     Json                       // TipTap JSON document
+  excerpt     String?
+  type        String    @default("article") // 'article' | 'editorial' | 'discussion' | 'interview'
+  tags        String[]
+  status      String    @default("draft")   // 'draft' | 'published'
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  comments    Comment[]
+  votes       PostVote[]
+  bookmarks   Bookmark[]
+
+  @@index([authorId])
+  @@index([status, publishedAt])
+  @@index([type])
+  @@map("posts")
+}
+
+// =============================================
+// Threaded Comments
+// =============================================
+model Comment {
+  id        String    @id @default(uuid())
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comment?  @relation("replies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("replies")
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([postId])
+  @@index([authorId])
+  @@index([parentId])
+  @@map("comments")
+}
+
+// =============================================
+// Post Votes (Upvotes)
+// =============================================
+model PostVote {
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, postId])
+  @@map("post_votes")
+}
+
+// =============================================
+// Bookmarks
+// =============================================
+model Bookmark {
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, postId])
+  @@map("bookmarks")
 }

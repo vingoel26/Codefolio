@@ -16,6 +16,9 @@ import Accounts from './pages/Accounts';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Feed from './pages/Feed';
+import Blog from './pages/Blog';
+import PostEditor from './pages/PostEditor';
+import PostView from './pages/PostView';
 
 function AppInit({ children }) {
     const initialize = useAuthStore((s) => s.initialize);
@@ -56,6 +59,10 @@ function App() {
                         <Route path="/accounts" element={<Accounts />} />
                         <Route path="/settings" element={<Settings />} />
                         <Route path="/profile" element={<Profile />} />
+                        <Route path="/blog" element={<Blog />} />
+                        <Route path="/blog/new" element={<PostEditor />} />
+                        <Route path="/blog/edit/:id" element={<PostEditor />} />
+                        <Route path="/blog/:slug" element={<PostView />} />
                     </Route>
                 </Routes>
             </AppInit>

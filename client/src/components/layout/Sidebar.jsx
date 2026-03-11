@@ -10,7 +10,7 @@ import {
     ChevronLeft,
     ChevronRight,
     User,
-    LogOut, Code, Compass, Rss
+    LogOut, Code, Compass, Rss, PenSquare
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
@@ -27,6 +27,12 @@ const navItems = [
         path: '/feed',
         icon: Rss,
         description: 'Community Feed',
+    },
+    {
+        label: 'Blog',
+        path: '/blog',
+        icon: PenSquare,
+        description: 'Articles & discussions',
     },
     {
         label: 'Codeforces',

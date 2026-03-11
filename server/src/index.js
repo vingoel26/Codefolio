@@ -9,6 +9,8 @@ import userRoutes from './routes/users.js';
 import syncRoutes from './routes/sync.js';
 import snippetRoutes from './routes/snippets.js';
 import feedRoutes from './routes/feed.js';
+import postRoutes from './routes/posts.js';
+import commentRoutes from './routes/comments.js';
 import config from './config.js'; // Keep config for server start logs
 
 const app = express();
@@ -18,7 +20,7 @@ app.use(cors({
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
     credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: '5mb' })); // Increased for rich-text content
 app.use(cookieParser());
 configurePassport();
 app.use(passport.initialize());
@@ -29,6 +31,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/sync', syncRoutes);
 app.use('/api/snippets', snippetRoutes);
 app.use('/api/feed', feedRoutes);
+app.use('/api/posts', postRoutes);
+app.use('/api/posts', commentRoutes); // Comments are nested under /api/posts/:postId/comments
 
 // ── Global Error Handler ──
 app.use((err, _req, res, _next) => {

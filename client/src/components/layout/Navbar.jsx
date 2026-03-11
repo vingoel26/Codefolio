@@ -13,6 +13,8 @@ const pageTitles = {
     '/settings': 'Settings',
     '/profile': 'Profile',
     '/feed': 'Community Feed',
+    '/blog': 'Blog',
+    '/blog/new': 'New Post',
 };
 
 const pageDescriptions = {
@@ -26,6 +28,8 @@ const pageDescriptions = {
     '/settings': 'Profile & app preferences',
     '/profile': 'Your public profile & stats',
     '/feed': 'Recent activity from developers you follow',
+    '/blog': 'Articles, editorials & discussions from the community',
+    '/blog/new': 'Write and publish a new post',
 };
 
 export default function Navbar() {

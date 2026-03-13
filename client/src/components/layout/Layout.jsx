@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import FocusTimerWidget from '../widgets/FocusTimerWidget';
 
 /**
  * Main application layout with sidebar + navbar + content area.
@@ -16,6 +17,9 @@ export default function Layout() {
                     <Outlet />
                 </main>
             </div>
+            
+            {/* Global Widgets: Survives page navigation */}
+            <FocusTimerWidget />
 
             <style>{`
                 .app-layout {

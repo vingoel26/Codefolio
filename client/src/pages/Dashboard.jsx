@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores/authStore';
-import { RefreshCw, Loader2, Trophy, Target, TrendingUp, Code, Award, ExternalLink, Calendar, Flame, Hash } from 'lucide-react';
+import { RefreshCw, Loader2, Trophy, Target, TrendingUp, Code, Award, ExternalLink, Calendar, Flame, Hash, Brain } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell, PieChart, Pie } from 'recharts';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -15,6 +15,7 @@ const PLATFORMS = [
 export default function Dashboard() {
     const { accessToken, user } = useAuthStore();
     const [allData, setAllData] = useState({});
+    const [focusData, setFocusData] = useState({ stats: { totalSessions: 0, totalFocusedMinutes: 0 }, recentSessions: [] });
     const [loading, setLoading] = useState(true);
 
     const fetchAll = useCallback(async () => {
@@ -35,6 +36,21 @@ export default function Dashboard() {
                 } catch { /* not linked */ }
             })
         );
+        
+        // Fetch focus stats
+        try {
+            const focusRes = await fetch(`${API_URL}/focus`, {
+                headers: { Authorization: `Bearer ${accessToken}` },
+                credentials: 'include',
+            });
+            if (focusRes.ok) {
+                const fData = await focusRes.json();
+                setFocusData(fData);
+            }
+        } catch (err) {
+            console.error('Failed to fetch focus stats:', err);
+        }
+
         setAllData(results);
         setLoading(false);
     }, [accessToken]);
@@ -94,7 +110,7 @@ export default function Dashboard() {
                 <Stat icon={Target} label="Total Solved" value={grandSolved} color="var(--accent)" size="lg" />
                 <Stat icon={Award} label="Total Contests" value={grandContests} color="#ffa116" size="lg" />
                 <Stat icon={Code} label="Platforms" value={linkedPlatforms} color="#6366f1" size="lg" />
-                <Stat icon={Hash} label="Accounts" value={totalAccounts} color="#ec4899" size="lg" />
+                <Stat icon={Brain} label="Deep Work (Min)" value={focusData?.stats?.totalFocusedMinutes || 0} color="#9c27b0" size="lg" />
             </div>
 
             {/* Platform Cards */}

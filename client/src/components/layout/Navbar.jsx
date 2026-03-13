@@ -1,5 +1,6 @@
 import { useLocation } from 'react-router-dom';
-import { Bell, Search } from 'lucide-react';
+import { Bell, Search, Brain } from 'lucide-react';
+import { useFocusStore } from '../../stores/focusStore';
 import ThemeToggle from '../ui/ThemeToggle';
 
 const pageTitles = {
@@ -36,6 +37,7 @@ export default function Navbar() {
     const location = useLocation();
     const title = pageTitles[location.pathname] || 'Codefolio';
     const description = pageDescriptions[location.pathname] || '';
+    const { toggleOpen, isRunning, timeLeft } = useFocusStore();
 
     return (
         <header className="navbar">
@@ -49,6 +51,21 @@ export default function Navbar() {
             </div>
 
             <div className="navbar-right">
+                {/* Focus Mode Toggle */}
+                <button
+                    className={`navbar-icon-btn ${isRunning ? 'focus-active' : ''}`}
+                    aria-label="Focus Mode"
+                    title="Pomodoro Timer"
+                    onClick={toggleOpen}
+                >
+                    <Brain size={18} />
+                    {isRunning && (
+                        <span className="navbar-focus-badge">
+                            {Math.floor(timeLeft / 60)}m
+                        </span>
+                    )}
+                </button>
+
                 {/* Search */}
                 <button className="navbar-icon-btn" aria-label="Search" title="Search (Ctrl+K)">
                     <Search size={18} />

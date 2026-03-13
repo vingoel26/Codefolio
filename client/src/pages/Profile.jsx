@@ -6,6 +6,7 @@ import {
     ExternalLink, Loader2, Copy, Check, Share2, UserPlus, UserMinus, Users
 } from 'lucide-react';
 import ThemeToggle from '../components/ui/ThemeToggle';
+import ContributionCity from '../components/profile/ContributionCity';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -531,55 +532,8 @@ export default function Profile({ standalone = false }) {
                     <span><strong>{currentStreak}</strong> current streak</span>
                     <span><strong>{maxStreak}</strong> max streak</span>
                 </div>
-                <div className="heatmap-container" onMouseLeave={() => setHoverCell(null)}>
-                    <div className="heatmap-y-axis">
-                        <span style={{ gridRow: 2 }}>Mon</span>
-                        <span style={{ gridRow: 4 }}>Wed</span>
-                        <span style={{ gridRow: 6 }}>Fri</span>
-                    </div>
-                    <div className="heatmap-scroll">
-                        <div className="heatmap-months">
-                            {monthLabels.map((m, i) => (
-                                <span key={i} className="heatmap-month" style={{ left: `${m.index * 14}px` }}>{m.label}</span>
-                            ))}
-                        </div>
-                        <div className="heatmap-grid">
-                            {weeks.map((week, wIdx) => (
-                                <div key={wIdx} className="heatmap-col">
-                                    {week.map((date, dIdx) => {
-                                        if (date === null) {
-                                            return <div key={dIdx} className="heatmap-cell heatmap-cell-empty" />;
-                                        }
-                                        const count = heatmapMap.get(dateToKey(date)) || 0;
-                                        return (
-                                            <div
-                                                key={dIdx}
-                                                className={`heatmap-cell heatmap-level-${getLevel(count)}`}
-                                                onMouseEnter={(e) => {
-                                                    const rect = e.target.getBoundingClientRect();
-                                                    setHoverCell({
-                                                        x: rect.left + rect.width / 2,
-                                                        y: rect.top - 6,
-                                                        date: date.toDateString(),
-                                                        count: count
-                                                    });
-                                                }}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-                <div className="heatmap-legend">
-                    <span>Less</span>
-                    <div className="heatmap-cell heatmap-level-0" />
-                    <div className="heatmap-cell heatmap-level-1" />
-                    <div className="heatmap-cell heatmap-level-2" />
-                    <div className="heatmap-cell heatmap-level-3" />
-                    <div className="heatmap-cell heatmap-level-4" />
-                    <span>More</span>
+                <div style={{ marginTop: '16px' }}>
+                    <ContributionCity platforms={platforms} />
                 </div>
             </div>
 

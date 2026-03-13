@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
-import { RefreshCw, Loader2, Trophy, Target, TrendingUp, Code, Award, ExternalLink, Calendar, Flame, Hash, Brain } from 'lucide-react';
+import { RefreshCw, Loader2, Trophy, Target, TrendingUp, Code, Award, ExternalLink, Calendar, Flame, Hash, Brain, LayoutTemplate } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell, PieChart, Pie } from 'recharts';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -102,7 +103,21 @@ export default function Dashboard() {
                     <h1 className="dash-title"><Trophy size={24} /> Dashboard</h1>
                     <p className="dash-subtitle">Welcome back, {user?.displayName || user?.email}!</p>
                 </div>
-                <button className="dash-sync-btn" onClick={fetchAll}><RefreshCw size={16} /> Refresh</button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    {user?.username && (
+                        <Link 
+                            to={`/portfolio/${user.username}`} 
+                            target="_blank" 
+                            className="dash-sync-btn" 
+                            style={{ background: 'var(--accent)', color: '#fff', border: 'none', textDecoration: 'none' }}
+                            title="View your public developer portfolio"
+                        >
+                            <LayoutTemplate size={16} /> 
+                            <span>Portfolio</span>
+                        </Link>
+                    )}
+                    <button className="dash-sync-btn" onClick={fetchAll}><RefreshCw size={16} /> Refresh</button>
+                </div>
             </div>
 
             {/* Grand Stats */}

@@ -19,6 +19,7 @@ import Feed from './pages/Feed';
 import Blog from './pages/Blog';
 import PostEditor from './pages/PostEditor';
 import PostView from './pages/PostView';
+import PortfolioEngine from './pages/PortfolioEngine';
 
 function AppInit({ children }) {
     const initialize = useAuthStore((s) => s.initialize);
@@ -40,6 +41,7 @@ function App() {
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/auth/callback/:provider" element={<AuthCallback />} />
                     <Route path="/u/:username" element={<Profile standalone />} />
+                    <Route path="/portfolio/:username" element={<PortfolioEngine />} />
 
                     {/* Protected routes (require auth) */}
                     <Route

@@ -21,6 +21,9 @@ router.get('/u/:username', optionalAuth, async (req, res) => {
                 avatarUrl: true,
                 bio: true,
                 createdAt: true,
+                portfolioTheme: true,
+                portfolioTagline: true,
+                portfolioSections: true,
                 linkedAccounts: {
                     where: { isPrimary: true },
                     select: {
@@ -32,6 +35,19 @@ router.get('/u/:username', optionalAuth, async (req, res) => {
                         data: true,
                     },
                 },
+                posts: {
+                    where: { status: 'published' },
+                    orderBy: { publishedAt: 'desc' },
+                    take: 5,
+                    select: {
+                        id: true,
+                        title: true,
+                        slug: true,
+                        excerpt: true,
+                        publishedAt: true,
+                        tags: true,
+                    }
+                }
             },
         });
 
@@ -105,6 +121,9 @@ router.get('/u/:username', optionalAuth, async (req, res) => {
                 avatarUrl: user.avatarUrl,
                 bio: user.bio,
                 joinedAt: user.createdAt,
+                portfolioTheme: user.portfolioTheme,
+                portfolioTagline: user.portfolioTagline,
+                portfolioSections: user.portfolioSections,
                 grandTotalSolved,
                 bestRating,
                 totalContests,
@@ -114,6 +133,7 @@ router.get('/u/:username', optionalAuth, async (req, res) => {
                 isFollowing,
             },
             platforms,
+            recentPosts: user.posts || []
         });
     } catch (err) {
         console.error('Error fetching public profile:', err);

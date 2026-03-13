@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Settings as SettingsIcon, User, Palette, Bell, Database, LogOut } from 'lucide-react';
+import { Settings as SettingsIcon, User, Palette, Bell, Database, LogOut, LayoutTemplate, Briefcase } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useTheme } from '../hooks/useTheme';
 
@@ -22,8 +22,24 @@ export default function Settings() {
         setTimeout(() => setSaved(false), 2000);
     };
 
+    // Portfolio state
+    const [pTheme, setPTheme] = useState(user?.portfolioTheme || 'dark');
+    const [pTagline, setPTagline] = useState(user?.portfolioTagline || '');
+    const [pSections, setPSections] = useState(user?.portfolioSections || ['hero', 'stats', 'platforms', 'blogs', 'contact']);
+    const [pSaving, setPSaving] = useState(false);
+    const [pSaved, setPSaved] = useState(false);
+
+    const handleSavePortfolio = async () => {
+        setPSaving(true);
+        await updateProfile({ portfolioTheme: pTheme, portfolioTagline: pTagline, portfolioSections: pSections });
+        setPSaving(false);
+        setPSaved(true);
+        setTimeout(() => setPSaved(false), 2000);
+    };
+
     const tabs = [
         { id: 'profile', label: 'Profile', icon: User },
+        { id: 'portfolio', label: 'Portfolio', icon: LayoutTemplate },
         { id: 'appearance', label: 'Appearance', icon: Palette },
         { id: 'notifications', label: 'Notifications', icon: Bell },
         { id: 'data', label: 'Data & Export', icon: Database },
@@ -116,6 +132,93 @@ export default function Settings() {
                                 >
                                     {saving ? 'Saving...' : saved ? '✓ Saved!' : 'Save Changes'}
                                 </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'portfolio' && (
+                        <div className="settings-section animate-fade-in">
+                            <h2 className="settings-section-title">Portfolio Generator</h2>
+                            <p className="settings-section-desc">Customize your shareable standalone portfolio. Accessible at <code>/portfolio/{user?.username}</code></p>
+
+                            <div className="settings-form">
+                                {/* Theme Option */}
+                                <div className="settings-field">
+                                    <label className="settings-label">Theme</label>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        {['dark', 'light', 'neon'].map((t) => (
+                                            <button
+                                                key={t}
+                                                style={{
+                                                    flex: 1, padding: '12px', borderRadius: '8px', cursor: 'pointer',
+                                                    border: pTheme === t ? '2px solid var(--accent)' : '2px solid var(--border)',
+                                                    background: t === 'dark' ? '#0f172a' : t === 'light' ? '#f8fafc' : '#1e1b4b',
+                                                    color: t === 'light' ? '#0f172a' : '#fff',
+                                                    fontWeight: 600
+                                                }}
+                                                onClick={() => setPTheme(t)}
+                                            >
+                                                {t.charAt(0).toUpperCase() + t.slice(1)}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Tagline */}
+                                <div className="settings-field">
+                                    <label className="settings-label" htmlFor="tagline">Hero Tagline</label>
+                                    <input
+                                        id="tagline"
+                                        type="text"
+                                        className="settings-input"
+                                        value={pTagline}
+                                        onChange={(e) => setPTagline(e.target.value)}
+                                        placeholder="e.g. Competitive Programmer & Full Stack Developer"
+                                    />
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                                        Appears prominently at the top of your portfolio.
+                                    </span>
+                                </div>
+
+                                {/* Visible Sections */}
+                                <div className="settings-field">
+                                    <label className="settings-label">Visible Sections</label>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', background: 'var(--bg-secondary)', padding: '16px', borderRadius: '8px' }}>
+                                        {['hero', 'stats', 'platforms', 'blogs', 'contact'].map(sec => (
+                                            <label key={sec} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={pSections.includes(sec)}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) setPSections([...pSections, sec]);
+                                                        else setPSections(pSections.filter(s => s !== sec));
+                                                    }}
+                                                />
+                                                <span style={{ textTransform: 'capitalize' }}>{sec}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Save Action */}
+                                <button
+                                    className="settings-save-btn"
+                                    onClick={handleSavePortfolio}
+                                    disabled={pSaving}
+                                >
+                                    {pSaving ? 'Saving...' : pSaved ? '✓ Saved!' : 'Save Portfolio Settings'}
+                                </button>
+                                
+                                {user?.username && (
+                                    <a 
+                                        href={`/portfolio/${user.username}`} 
+                                        target="_blank" 
+                                        rel="noreferrer"
+                                        style={{ display: 'inline-block', marginTop: '16px', color: 'var(--accent)', textDecoration: 'none', fontSize: '0.875rem', fontWeight: 500 }}
+                                    >
+                                        View Live Portfolio →
+                                    </a>
+                                )}
                             </div>
                         </div>
                     )}

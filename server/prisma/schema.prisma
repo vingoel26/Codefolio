@@ -26,6 +26,11 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // Portfolio Customization
+  portfolioTheme    String   @default("dark") // 'dark' | 'light' | 'neon'
+  portfolioTagline  String?
+  portfolioSections Json?    // Array of visible sections e.g., ["hero", "platforms", "blogs"]
+
   // Relations
   refreshTokens  RefreshToken[]
   linkedAccounts LinkedAccount[]

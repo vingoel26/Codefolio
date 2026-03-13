@@ -251,7 +251,7 @@ router.get('/me', requireAuth, (req, res) => {
 
 // PATCH /api/auth/me — update profile
 router.patch('/me', requireAuth, async (req, res) => {
-    const { displayName, bio, username } = req.body;
+    const { displayName, bio, username, portfolioTheme, portfolioTagline, portfolioSections } = req.body;
 
     try {
         const user = await prisma.user.update({
@@ -260,6 +260,9 @@ router.patch('/me', requireAuth, async (req, res) => {
                 ...(displayName !== undefined && { displayName }),
                 ...(bio !== undefined && { bio }),
                 ...(username !== undefined && { username }),
+                ...(portfolioTheme !== undefined && { portfolioTheme }),
+                ...(portfolioTagline !== undefined && { portfolioTagline }),
+                ...(portfolioSections !== undefined && { portfolioSections }),
             },
         });
 

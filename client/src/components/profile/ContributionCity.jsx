@@ -157,7 +157,7 @@ export default function ContributionCity({ platforms }) {
                         <Text 
                             key={`dow-${i}`}
                             position={[i * 1.5, 0.1, -1.5]}
-                            rotation={[-Math.PI / 2, 0, 0]}
+                            rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
                             fontSize={0.8}
                             color="#94a3b8"
                             anchorX="center"
@@ -172,7 +172,7 @@ export default function ContributionCity({ platforms }) {
                         <Text 
                             key={`mon-${i}`}
                             position={[-1.5, 0.1, (i * 52/12) * 1.5 + 2]}
-                            rotation={[-Math.PI / 2, 0, 0]}
+                            rotation={[-Math.PI / 2, 0, -Math.PI / 2]}
                             fontSize={0.8}
                             color="#94a3b8"
                             anchorX="center"

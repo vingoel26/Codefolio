@@ -1,9 +1,12 @@
 import express from 'express';
+import { createServer } from 'http';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import { configurePassport } from './lib/passport.js';
 import { startCron } from './lib/cron.js';
+import { initSocket } from './lib/socket.js';
+import { seedDatabase } from './lib/seed.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import syncRoutes from './routes/sync.js';
@@ -12,9 +15,14 @@ import feedRoutes from './routes/feed.js';
 import postRoutes from './routes/posts.js';
 import commentRoutes from './routes/comments.js';
 import focusRoutes from './routes/focus.js';
+import badgeRoutes from './routes/badges.js';
 import config from './config.js'; // Keep config for server start logs
 
 const app = express();
+const httpServer = createServer(app);
+
+// ── Socket.io Setup ──
+initSocket(httpServer);
 
 // ── Middleware ──
 app.use(cors({
@@ -35,6 +43,7 @@ app.use('/api/feed', feedRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/posts', commentRoutes); // Comments are nested under /api/posts/:postId/comments
 app.use('/api/focus', focusRoutes);
+app.use('/api/badge', badgeRoutes);
 
 // ── Global Error Handler ──
 app.use((err, _req, res, _next) => {
@@ -45,7 +54,8 @@ app.use((err, _req, res, _next) => {
 const PORT = process.env.PORT || 3001;
 
 // ── Start Server ──
-app.listen(config.port, () => {
+httpServer.listen(config.port, async () => {
+    await seedDatabase();
     console.log(`\n  🚀 Codefolio API running at http://localhost:${config.port}`);
     console.log(`  📡 Health check: http://localhost:${config.port}/api/health`);
     console.log(`  🌐 Client URL: ${config.clientUrl}`);

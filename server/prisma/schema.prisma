@@ -43,6 +43,8 @@ model User {
   postVotes      PostVote[]
   bookmarks      Bookmark[]
   focusSessions  FocusSession[]
+  conversations  ConversationParticipant[]
+  messages       Message[]
 
 
   @@unique([provider, providerId])
@@ -233,4 +235,46 @@ model FocusSession {
   @@index([userId])
   @@index([startTime])
   @@map("focus_sessions")
+}
+
+// =============================================
+// Chat & Messaging
+// =============================================
+model Conversation {
+  id        String   @id @default(uuid())
+  type      String   @default("private") // "private" | "group" | "channel"
+  name      String?  // For channels/groups
+  slug      String?  @unique // For global channels like 'general'
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@map("conversations")
+}
+
+model ConversationParticipant {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt       DateTime     @default(now())
+
+  @@unique([conversationId, userId])
+  @@map("conversation_participants")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content        String
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+  @@map("messages")
 }

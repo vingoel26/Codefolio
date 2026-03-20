@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import FocusTimerWidget from '../widgets/FocusTimerWidget';
+import ChatPanel from '../widgets/ChatPanel';
 
 /**
  * Main application layout with sidebar + navbar + content area.

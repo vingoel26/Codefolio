@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import {
     User, Edit3, Save, X, Target, TrendingUp, Trophy, Code, Calendar,
-    ExternalLink, Loader2, Copy, Check, Share2, UserPlus, UserMinus, Users
+    ExternalLink, Loader2, Copy, Check, Share2, UserPlus, UserMinus, Users, MessageSquare
 } from 'lucide-react';
 import ThemeToggle from '../components/ui/ThemeToggle';
 import ContributionCity from '../components/profile/ContributionCity';
@@ -505,6 +505,16 @@ export default function Profile({ standalone = false }) {
                                         </button>
                                     ) : null}
 
+                                    {!isOwner && currentUser && (
+                                        <button 
+                                            className={`profile-msg-btn ${!isFollowing ? 'profile-msg-btn-disabled' : ''}`}
+                                            onClick={() => useSocketStore.getState().getPrivateConversation(profile.id)}
+                                            title={!isFollowing ? "Follow this user to message" : "Send a message"}
+                                        >
+                                            <MessageSquare size={14} /> Message
+                                        </button>
+                                    )}
+
                                     <button className="profile-share-btn" onClick={copyUrl} disabled={!hasRealUsername} title={hasRealUsername ? "Copy profile link" : "Set a username first to share"}>
                                         {copied ? <Check size={14} /> : <Share2 size={14} />} 
                                         {copied ? 'Copied' : 'Share'}
@@ -667,8 +677,12 @@ const styles = `
     
     .profile-action-btn.follow { display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--text-primary); color:var(--bg-primary); border:none; border-radius:var(--radius-md); font-weight:600; font-size:0.8125rem; font-family:var(--font-sans); cursor:pointer; transition:opacity var(--transition-fast); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
     .profile-action-btn.follow:hover { opacity:0.9; transform: translateY(-1px); }
-    .profile-action-btn.unfollow { display:flex; align-items:center; gap:6px; padding:8px 16px; background:transparent; color:var(--text-secondary); border:1px solid var(--border); border-radius:var(--radius-md); font-weight:600; font-size:0.8125rem; font-family:var(--font-sans); cursor:pointer; transition:all var(--transition-fast); }
     .profile-action-btn.unfollow:hover { border-color:var(--error); color:var(--error); background:rgba(255, 60, 60, 0.05); }
+
+    .profile-msg-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--accent-subtle); color:var(--accent); border:1px solid var(--accent); border-radius:var(--radius-md); font-weight:600; font-size:0.8125rem; font-family:var(--font-sans); cursor:pointer; transition:all var(--transition-fast); }
+    .profile-msg-btn:hover { background:var(--accent); color:#fff; }
+    .profile-msg-btn-disabled { opacity: 0.5; filter: grayscale(1); cursor: help; }
+    .profile-msg-btn-disabled:hover { background: var(--accent-subtle); color: var(--accent); }
 
     /* Stats (same as Dashboard) */
     .stats-grid.grand { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-bottom:24px; }

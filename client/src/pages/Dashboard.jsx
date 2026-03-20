@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
-import { RefreshCw, Loader2, Trophy, Target, TrendingUp, Code, Award, ExternalLink, Calendar, Flame, Hash, Brain, LayoutTemplate } from 'lucide-react';
+import { RefreshCw, Loader2, Trophy, Target, TrendingUp, Code, Award, ExternalLink, Calendar, Flame, Hash, Brain, LayoutTemplate, Copy, Check, Share2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell, PieChart, Pie } from 'recharts';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -193,6 +193,24 @@ export default function Dashboard() {
                 )}
             </div>
 
+            {/* GitHub Badges Section */}
+            {user?.username && (
+                <div className="badges-section glass-card">
+                    <div className="badges-header">
+                        <h3 className="chart-title"><Share2 size={16} /> GitHub Readme Badges</h3>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Embed live stats in your README.md</span>
+                    </div>
+                    <div className="badges-grid">
+                        <BadgeRow username={user.username} type="total" label="Grand Total Solved" />
+                        <BadgeRow username={user.username} type="leetcode" label="LeetCode Solved" />
+                        <BadgeRow username={user.username} type="codeforces" label="Codeforces Rating" />
+                        <BadgeRow username={user.username} type="codechef" label="CodeChef Rating" />
+                        <BadgeRow username={user.username} type="gfg" label="GFG Solved" />
+                        <BadgeRow username={user.username} type="streak" label="Master Streak" />
+                    </div>
+                </div>
+            )}
+
             <style>{masterStyles}</style>
         </div>
     );
@@ -204,6 +222,30 @@ function Stat({ icon: Icon, label, value, color, size }) {
             <div style={{ color }}><Icon size={size === 'lg' ? 24 : 20} /></div>
             <div className="stat-v" style={{ color }}>{typeof value === 'number' ? value.toLocaleString() : value}</div>
             <div className="stat-l">{label}</div>
+        </div>
+    );
+}
+
+function BadgeRow({ username, type, label }) {
+    const [copied, setCopied] = useState(false);
+    const badgeUrl = `${API_URL}/badge/${username}/${type}`;
+    const markdown = `[![${label}](${badgeUrl})](${window.location.origin}/u/${username})`;
+
+    const copy = () => {
+        navigator.clipboard.writeText(markdown);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <div className="badge-row">
+            <div className="badge-preview">
+                <img src={badgeUrl} alt={label} height="32" />
+            </div>
+            <div className="badge-label">{label}</div>
+            <button className="badge-copy-btn" onClick={copy} title="Copy Markdown">
+                {copied ? <><Check size={14} /> Copied!</> : <><Copy size={14} /> Copy</>}
+            </button>
         </div>
     );
 }
@@ -246,5 +288,15 @@ const masterStyles = `
     .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
     @media (max-width: 768px) { .charts-row { grid-template-columns: 1fr; } }
     .chart-card { padding:20px; border-radius:var(--radius-lg); }
-    .chart-title { font-size:0.9rem; font-weight:700; margin-bottom:14px; }
+    .chart-title { font-size:0.9rem; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+
+    .badges-section { padding:24px; border-radius:var(--radius-lg); margin-bottom:24px; }
+    .badges-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px; }
+    .badges-grid { display:flex; flex-direction:column; gap:10px; }
+    .badge-row { display:flex; align-items:center; gap:16px; padding:10px 14px; background:var(--bg-tertiary); border-radius:var(--radius-md); border:1px solid var(--border); }
+    .badge-preview { flex-shrink:0; display:flex; align-items:center; }
+    .badge-preview img { border-radius:6px; }
+    .badge-label { flex:1; font-size:0.8125rem; font-weight:600; color:var(--text-secondary); }
+    .badge-copy-btn { display:flex; align-items:center; gap:4px; padding:6px 14px; font-size:0.75rem; font-weight:600; background:var(--accent); color:#fff; border:none; border-radius:var(--radius-sm); cursor:pointer; transition:all var(--transition-fast); font-family:var(--font-sans); white-space:nowrap; }
+    .badge-copy-btn:hover { opacity:0.85; }
 `;

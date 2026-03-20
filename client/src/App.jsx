@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useAuthStore } from './stores/authStore';
+import { useSocketStore } from './stores/socketStore';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './pages/Login';
@@ -20,15 +21,32 @@ import Blog from './pages/Blog';
 import PostEditor from './pages/PostEditor';
 import PostView from './pages/PostView';
 import PortfolioEngine from './pages/PortfolioEngine';
+import ChatPanel from './components/widgets/ChatPanel';
 
 function AppInit({ children }) {
     const initialize = useAuthStore((s) => s.initialize);
+    const accessToken = useAuthStore((s) => s.accessToken);
+    const connectSocket = useSocketStore((s) => s.connect);
+    const disconnectSocket = useSocketStore((s) => s.disconnect);
 
     useEffect(() => {
         initialize();
     }, [initialize]);
 
-    return children;
+    useEffect(() => {
+        if (accessToken) {
+            connectSocket(accessToken);
+        } else {
+            disconnectSocket();
+        }
+    }, [accessToken, connectSocket, disconnectSocket]);
+
+    return (
+        <>
+            {children}
+            {accessToken && <ChatPanel />}
+        </>
+    );
 }
 
 function App() {

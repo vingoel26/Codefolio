@@ -25,6 +25,7 @@ import Arena from './pages/Arena';
 import BattleRoom from './pages/BattleRoom';
 import ChatPage from './pages/ChatPage';
 import SmartAnalytics from './pages/SmartAnalytics';
+import Contests from './pages/Contests';
 import ChatPanel from './components/widgets/ChatPanel';
 
 function AppInit({ children }) {
@@ -91,6 +92,7 @@ function App() {
                         <Route path="/arena" element={<Arena />} />
                         <Route path="/arena/:id" element={<BattleRoom />} />
                         <Route path="/analytics" element={<SmartAnalytics />} />
+                        <Route path="/contests" element={<Contests />} />
                     </Route>
                 </Routes>
             </AppInit>

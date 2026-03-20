@@ -10,7 +10,7 @@ import {
     ChevronLeft,
     ChevronRight,
     User,
-    LogOut, Code, Compass, Rss, PenSquare, MessageSquare, Swords, Target
+    LogOut, Code, Compass, Rss, PenSquare, MessageSquare, Swords, Target, Calendar
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
@@ -51,6 +51,12 @@ const navItems = [
         path: '/analytics',
         icon: Target,
         description: 'Blind-Spot Detector',
+    },
+    {
+        label: 'Contests',
+        path: '/contests',
+        icon: Calendar,
+        description: 'Upcoming Matches',
     },
     {
         label: 'Codeforces',

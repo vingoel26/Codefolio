@@ -18,6 +18,7 @@ import focusRoutes from './routes/focus.js';
 import badgeRoutes from './routes/badges.js';
 import battlesRouter from './routes/battles.js';
 import aiRouter from './routes/ai.js';
+import contestsRouter from './routes/contests.js';
 
 import config from './config.js'; // Keep config for server start logs
 
@@ -49,6 +50,7 @@ app.use('/api/focus', focusRoutes);
 app.use('/api/badge', badgeRoutes);
 app.use('/api/battles', battlesRouter);
 app.use('/api/ai', aiRouter);
+app.use('/api/contests', contestsRouter);
 
 // Database seed (development only)
 // ── Global Error Handler ──

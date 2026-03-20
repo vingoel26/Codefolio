@@ -13,6 +13,7 @@
         "prisma:migrate": "npx prisma migrate dev"
     },
     "dependencies": {
+        "@google/genai": "^1.46.0",
         "@prisma/client": "^6.4.0",
         "axios": "^1.13.6",
         "bcryptjs": "^2.4.3",

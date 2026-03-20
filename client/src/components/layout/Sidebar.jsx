@@ -10,7 +10,7 @@ import {
     ChevronLeft,
     ChevronRight,
     User,
-    LogOut, Code, Compass, Rss, PenSquare, MessageSquare, Swords
+    LogOut, Code, Compass, Rss, PenSquare, MessageSquare, Swords, Target
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
@@ -45,6 +45,12 @@ const navItems = [
         path: '/arena',
         icon: Swords,
         description: '1v1 CF Battles',
+    },
+    {
+        label: 'Analytics',
+        path: '/analytics',
+        icon: Target,
+        description: 'Blind-Spot Detector',
     },
     {
         label: 'Codeforces',

@@ -10,13 +10,15 @@ import { seedDatabase } from './lib/seed.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import syncRoutes from './routes/sync.js';
-import snippetRoutes from './routes/snippets.js';
-import feedRoutes from './routes/feed.js';
+import snippetsRouter from './routes/snippets.js';
+import feedRouter from './routes/feed.js';
 import postRoutes from './routes/posts.js';
 import commentRoutes from './routes/comments.js';
 import focusRoutes from './routes/focus.js';
 import badgeRoutes from './routes/badges.js';
-import battleRoutes from './routes/battles.js';
+import battlesRouter from './routes/battles.js';
+import aiRouter from './routes/ai.js';
+
 import config from './config.js'; // Keep config for server start logs
 
 const app = express();
@@ -39,14 +41,16 @@ app.use(passport.initialize());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/sync', syncRoutes);
-app.use('/api/snippets', snippetRoutes);
-app.use('/api/feed', feedRoutes);
+app.use('/api/snippets', snippetsRouter);
+app.use('/api/feed', feedRouter);
 app.use('/api/posts', postRoutes);
 app.use('/api/posts', commentRoutes); // Comments are nested under /api/posts/:postId/comments
 app.use('/api/focus', focusRoutes);
 app.use('/api/badge', badgeRoutes);
-app.use('/api/battles', battleRoutes);
+app.use('/api/battles', battlesRouter);
+app.use('/api/ai', aiRouter);
 
+// Database seed (development only)
 // ── Global Error Handler ──
 app.use((err, _req, res, _next) => {
     console.error('Unhandled Server Error:', err);

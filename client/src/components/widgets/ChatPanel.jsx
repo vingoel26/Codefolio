@@ -22,24 +22,26 @@ const CHANNELS = [
 
 export default function ChatPanel() {
     const [message, setMessage] = useState('');
-    
+
     // Position and Size state
     const [pos, setPos] = useState({ x: window.innerWidth - 500, y: 100 });
     const [size, setSize] = useState({ width: 450, height: 650 });
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
-    
-    const { 
-        isConnected, 
+
+    const {
+        isConnected,
         isPanelOpen: isOpen,
         setPanelOpen: setIsOpen,
         activeTab,
         setActiveTab,
-        activeConversation, 
-        joinRoom, 
+        activeConversation,
+        joinRoom,
         sendChatMessage,
         privateConversations,
         fetchPrivateConversations,
+        friends,
+        lastError,
         onlineUsers 
     } = useSocketStore();
     const user = useAuthStore((s) => s.user);
@@ -63,10 +65,10 @@ export default function ChatPanel() {
     }, [activeConversation?.messages]);
 
     useEffect(() => {
-        if (isOpen && !activeConversation) {
+        if (isOpen && !activeConversation && activeTab === 'channels') {
             joinRoom('general');
         }
-    }, [isOpen, activeConversation, joinRoom]);
+    }, [isOpen, activeConversation, joinRoom, activeTab]);
 
     // Dragging Logic
     const onMouseDownDrag = (e) => {
@@ -228,10 +230,10 @@ export default function ChatPanel() {
                                 })}
 
                                 {/* Friends Section */}
-                                {useSocketStore.getState().friends.length > 0 && (
+                                {friends.length > 0 && (
                                     <div className="chat-sidebar-section">
                                         <span className="section-title">Friends</span>
-                                        {useSocketStore.getState().friends
+                                        {friends
                                             .filter(f => !privateConversations.some(c => c.participants.some(p => p.userId === f.id)))
                                             .map(friend => {
                                                 const isOnline = onlineUsers.includes(friend.id);
@@ -255,7 +257,7 @@ export default function ChatPanel() {
                                     </div>
                                 )}
 
-                                {!privateConversations.length && !useSocketStore.getState().friends.length && (
+                                {!privateConversations.length && !friends.length && (
                                     <div className="chat-empty-state">
                                         <Users size={20} style={{opacity: 0.3}} />
                                         <p style={{fontSize: '0.65rem'}}>No DMs or mutual friends yet.</p>
@@ -266,9 +268,9 @@ export default function ChatPanel() {
                     </div>
 
                     <div className="chat-main">
-                        {useSocketStore.getState().lastError && (
+                        {lastError && (
                             <div className="chat-error-toast">
-                                {useSocketStore.getState().lastError}
+                                {lastError}
                             </div>
                         )}
                         <div className="chat-messages" ref={scrollRef}>
@@ -278,7 +280,10 @@ export default function ChatPanel() {
                                     <span>Loading messages...</span>
                                 </div>
                             )}
-                            {activeConversation ? (
+                            {activeConversation && (
+                                (activeTab === 'channels' && activeConversation.slug) || 
+                                (activeTab === 'messages' && activeConversation.peer)
+                            ) ? (
                                 activeConversation.messages?.map((msg, i) => {
                                     const isMe = msg.senderId === user?.id;
                                     return (
@@ -371,8 +376,14 @@ export default function ChatPanel() {
                     user-select: none;
                 }
 
-                .chat-panel-v2-open {
+                .chat-panel-v2.chat-panel-v2-open {
                     display: flex;
+                    animation: panelFadeIn 0.2s ease-out;
+                }
+
+                @keyframes panelFadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
                 }
 
                 .chat-header {

@@ -133,11 +133,34 @@ export const useSocketStore = create((set, get) => ({
         });
 
         socket.on('chat:private:friends', (list) => {
+            console.log(`[Socket] Received ${list.length} friends`);
             set({ friends: list });
         });
 
         set({ socket });
     },
+
+    setPanelOpen: (isOpen) => {
+        set({ isPanelOpen: isOpen });
+    },
+    setActiveTab: (tab) => {
+        const { activeConversation } = get();
+        // Clear active conversation if switching to a tab that doesn't match current type
+        if (tab === 'messages' && activeConversation?.slug) {
+            set({ activeConversation: null });
+        } else if (tab === 'channels' && activeConversation?.peer) {
+            set({ activeConversation: null });
+        }
+
+        // Auto-fetch friends when switching to messages
+        if (tab === 'messages') {
+            const { socket } = get();
+            if (socket) socket.emit('chat:private:friends');
+        }
+
+        set({ activeTab: tab });
+    },
+    clearError: () => set({ lastError: null }),
 
     joinRoom: (slug, conversationId = null) => {
         const { socket, privateConversations } = get();
@@ -171,11 +194,13 @@ export const useSocketStore = create((set, get) => ({
     getPrivateConversation: (targetUserId) => {
         const { socket, privateConversations } = get();
         if (socket) {
-            console.log(`[Socket] Requesting DM with ${targetUserId}`);
             socket.emit('chat:private:get', { targetUserId });
 
             // Proactively set loading state for the target
-            const existing = privateConversations.find(c => c.participants.some(p => p.userId === targetUserId));
+            const existing = privateConversations.find(c =>
+                c.participants.some(p => p.userId === targetUserId)
+            );
+
             set({
                 isPanelOpen: true,
                 activeTab: 'messages',
@@ -183,7 +208,7 @@ export const useSocketStore = create((set, get) => ({
                     id: existing?.id || null,
                     messages: existing?.messages || [],
                     loading: true,
-                    peer: existing?.participants[0].user || { username: 'User...' } // placeholder
+                    peer: existing?.participants?.find(p => p.userId === targetUserId)?.user || { username: 'User...' }
                 }
             });
         }

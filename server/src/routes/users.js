@@ -116,6 +116,7 @@ router.get('/u/:username', optionalAuth, async (req, res) => {
 
         res.json({
             profile: {
+                id: user.id,
                 username: user.username,
                 displayName: user.displayName,
                 avatarUrl: user.avatarUrl,

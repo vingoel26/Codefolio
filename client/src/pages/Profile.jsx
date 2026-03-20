@@ -505,16 +505,6 @@ export default function Profile({ standalone = false }) {
                                         </button>
                                     ) : null}
 
-                                    {!isOwner && currentUser && (
-                                        <button 
-                                            className={`profile-msg-btn ${!isFollowing ? 'profile-msg-btn-disabled' : ''}`}
-                                            onClick={() => useSocketStore.getState().getPrivateConversation(profile.id)}
-                                            title={!isFollowing ? "Follow this user to message" : "Send a message"}
-                                        >
-                                            <MessageSquare size={14} /> Message
-                                        </button>
-                                    )}
-
                                     <button className="profile-share-btn" onClick={copyUrl} disabled={!hasRealUsername} title={hasRealUsername ? "Copy profile link" : "Set a username first to share"}>
                                         {copied ? <Check size={14} /> : <Share2 size={14} />} 
                                         {copied ? 'Copied' : 'Share'}

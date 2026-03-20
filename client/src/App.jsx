@@ -21,6 +21,7 @@ import Blog from './pages/Blog';
 import PostEditor from './pages/PostEditor';
 import PostView from './pages/PostView';
 import PortfolioEngine from './pages/PortfolioEngine';
+import ChatPage from './pages/ChatPage';
 import ChatPanel from './components/widgets/ChatPanel';
 
 function AppInit({ children }) {
@@ -83,6 +84,7 @@ function App() {
                         <Route path="/blog/new" element={<PostEditor />} />
                         <Route path="/blog/edit/:id" element={<PostEditor />} />
                         <Route path="/blog/:slug" element={<PostView />} />
+                        <Route path="/chat" element={<ChatPage />} />
                     </Route>
                 </Routes>
             </AppInit>

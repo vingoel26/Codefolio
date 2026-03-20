@@ -20,9 +20,9 @@ const CHANNELS = [
     { name: 'GeeksforGeeks', slug: 'gfg' },
 ];
 
-export default function ChatPanel() {
-    const [message, setMessage] = useState('');
+import ChatInterface from '../chat/ChatInterface';
 
+export default function ChatPanel() {
     // Position and Size state
     const [pos, setPos] = useState({ x: window.innerWidth - 500, y: 100 });
     const [size, setSize] = useState({ width: 450, height: 650 });
@@ -33,42 +33,11 @@ export default function ChatPanel() {
         isConnected,
         isPanelOpen: isOpen,
         setPanelOpen: setIsOpen,
-        activeTab,
-        setActiveTab,
         activeConversation,
-        joinRoom,
-        sendChatMessage,
-        privateConversations,
-        fetchPrivateConversations,
-        friends,
-        lastError,
-        onlineUsers 
     } = useSocketStore();
-    const user = useAuthStore((s) => s.user);
     
-    const scrollRef = useRef(null);
     const dragRef = useRef(null);
     const panelRef = useRef(null);
-
-    // Fetch DMs when tab switches to 'messages'
-    useEffect(() => {
-        if (activeTab === 'messages' && isConnected) {
-            fetchPrivateConversations();
-        }
-    }, [activeTab, isConnected, fetchPrivateConversations]);
-
-    // Auto-scroll to bottom
-    useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
-    }, [activeConversation?.messages]);
-
-    useEffect(() => {
-        if (isOpen && !activeConversation && activeTab === 'channels') {
-            joinRoom('general');
-        }
-    }, [isOpen, activeConversation, joinRoom, activeTab]);
 
     // Dragging Logic
     const onMouseDownDrag = (e) => {
@@ -126,13 +95,6 @@ export default function ChatPanel() {
         };
     }, [isDragging, isResizing]);
 
-    const handleSendMessage = (e) => {
-        e.preventDefault();
-        if (!message.trim()) return;
-        sendChatMessage(message);
-        setMessage('');
-    };
-
     return (
         <>
             {!isOpen && (
@@ -173,172 +135,14 @@ export default function ChatPanel() {
                     </button>
                 </div>
 
-                <div className="chat-tabs">
-                    <button 
-                        className={`chat-tab ${activeTab === 'channels' ? 'chat-tab-active' : ''}`}
-                        onClick={() => setActiveTab('channels')}
-                    >
-                        <Hash size={14} />
-                        Channels
-                    </button>
-                    <button 
-                        className={`chat-tab ${activeTab === 'messages' ? 'chat-tab-active' : ''}`}
-                        onClick={() => setActiveTab('messages')}
-                    >
-                        <Users size={14} />
-                        Direct
-                    </button>
-                </div>
-
-                <div className="chat-container">
-                    <div className="chat-sidebar">
-                        {activeTab === 'channels' ? (
-                            CHANNELS.map((ch) => (
-                                <button
-                                    key={ch.slug}
-                                    className={`chat-channel-item ${activeConversation?.slug === ch.slug ? 'chat-channel-active' : ''}`}
-                                    onClick={() => joinRoom(ch.slug)}
-                                >
-                                    <Hash size={14} />
-                                    <span>{ch.name}</span>
-                                </button>
-                            ))
-                        ) : (
-                        <div className="chat-dm-list">
-                                {privateConversations.map((conv) => {
-                                    const peerArr = conv.participants;
-                                    if (!peerArr || peerArr.length === 0) return null;
-                                    const peer = peerArr[0].user;
-                                    if (!peer) return null;
-                                    
-                                    const isOnline = onlineUsers.includes(peer.id);
-                                    return (
-                                        <button
-                                            key={conv.id}
-                                            className={`chat-channel-item ${activeConversation?.id === conv.id ? 'chat-channel-active' : ''}`}
-                                            onClick={() => joinRoom(null, conv.id)}
-                                        >
-                                            <div className="relative">
-                                                <div className="message-avatar" style={{width: 20, height: 20, fontSize: '0.5rem'}}>
-                                                    {peer.username[0].toUpperCase()}
-                                                </div>
-                                                {isOnline && <span className="online-dot-small" />}
-                                            </div>
-                                            <span className="truncate">{peer.username}</span>
-                                        </button>
-                                    );
-                                })}
-
-                                {/* Friends Section */}
-                                {friends.length > 0 && (
-                                    <div className="chat-sidebar-section">
-                                        <span className="section-title">Friends</span>
-                                        {friends
-                                            .filter(f => !privateConversations.some(c => c.participants.some(p => p.userId === f.id)))
-                                            .map(friend => {
-                                                const isOnline = onlineUsers.includes(friend.id);
-                                                return (
-                                                    <button
-                                                        key={friend.id}
-                                                        className="chat-channel-item opacity-70 hover:opacity-100"
-                                                        onClick={() => useSocketStore.getState().getPrivateConversation(friend.id)}
-                                                    >
-                                                        <div className="relative">
-                                                            <div className="message-avatar" style={{width: 20, height: 20, fontSize: '0.5rem', background: 'var(--bg-tertiary)'}}>
-                                                                {friend.username[0].toUpperCase()}
-                                                            </div>
-                                                            {isOnline && <span className="online-dot-small" />}
-                                                        </div>
-                                                        <span className="truncate">{friend.username}</span>
-                                                    </button>
-                                                )
-                                            })
-                                        }
-                                    </div>
-                                )}
-
-                                {!privateConversations.length && !friends.length && (
-                                    <div className="chat-empty-state">
-                                        <Users size={20} style={{opacity: 0.3}} />
-                                        <p style={{fontSize: '0.65rem'}}>No DMs or mutual friends yet.</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="chat-main">
-                        {lastError && (
-                            <div className="chat-error-toast">
-                                {lastError}
-                            </div>
-                        )}
-                        <div className="chat-messages" ref={scrollRef}>
-                            {activeConversation?.loading && (
-                                <div className="chat-loading-overlay">
-                                    <Loader2 size={20} className="spin" />
-                                    <span>Loading messages...</span>
-                                </div>
-                            )}
-                            {activeConversation && (
-                                (activeTab === 'channels' && activeConversation.slug) || 
-                                (activeTab === 'messages' && activeConversation.peer)
-                            ) ? (
-                                activeConversation.messages?.map((msg, i) => {
-                                    const isMe = msg.senderId === user?.id;
-                                    return (
-                                        <div key={msg.id || i} className={`chat-message-row ${isMe ? 'message-me' : ''}`}>
-                                            <div className="message-bubble">
-                                                {!isMe && <span className="message-author">{msg.sender.username}</span>}
-                                                <p className="message-content">{msg.content}</p>
-                                            </div>
-                                        </div>
-                                    );
-                                })
-                            ) : (
-                                <div className="chat-empty-state-main">
-                                    {activeTab === 'channels' ? (
-                                        <>
-                                            <Hash size={40} className="opacity-20 mb-4" />
-                                            <h3>Welcome to Community Chat</h3>
-                                            <p>Select a channel from the left to start talking.</p>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Users size={40} className="opacity-20 mb-4" />
-                                            <h3>Direct Messages</h3>
-                                            <p>Select a friend from the list or go to their profile to start a chat.</p>
-                                        </>
-                                    )}
-                                </div>
-                            )}
-                        </div>
- 
-                        <form className="chat-input-area" onSubmit={handleSendMessage}>
-                            <input
-                                type="text"
-                                placeholder={activeConversation?.slug 
-                                    ? `Message #${activeConversation.slug}...` 
-                                    : activeConversation?.peer 
-                                        ? `Message @${activeConversation.peer.username}...`
-                                        : 'Type a message...'
-                                }
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                disabled={!isConnected || activeConversation?.loading}
-                            />
-                            <button type="submit" disabled={!message.trim() || !isConnected}>
-                                <Send size={16} />
-                            </button>
-                        </form>
-                    </div>
-                </div>
+                <ChatInterface mode="widget" />
 
                 {/* Resize Handle */}
                 <div className="resize-handle" onMouseDown={onMouseDownResize}>
                     <Maximize2 size={12} className="rotate-90 pointer-events-none" />
                 </div>
             </aside>
+
 
             <style>{`
                 .chat-toggle-btn {

@@ -10,7 +10,7 @@ import {
     ChevronLeft,
     ChevronRight,
     User,
-    LogOut, Code, Compass, Rss, PenSquare, MessageSquare
+    LogOut, Code, Compass, Rss, PenSquare, MessageSquare, Swords
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuthStore } from '../../stores/authStore';
@@ -39,6 +39,12 @@ const navItems = [
         path: '/chat',
         icon: MessageSquare,
         description: 'Global & private messages',
+    },
+    {
+        label: 'Arena',
+        path: '/arena',
+        icon: Swords,
+        description: '1v1 CF Battles',
     },
     {
         label: 'Codeforces',

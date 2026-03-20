@@ -45,6 +45,7 @@ model User {
   focusSessions  FocusSession[]
   conversations  ConversationParticipant[]
   messages       Message[]
+  battleMatches  BattlePlayer[]
 
 
   @@unique([provider, providerId])
@@ -250,6 +251,7 @@ model Conversation {
 
   participants ConversationParticipant[]
   messages     Message[]
+  battleMatch  BattleMatch?
 
   @@map("conversations")
 }
@@ -278,3 +280,41 @@ model Message {
   @@index([conversationId])
   @@map("messages")
 }
+
+// =============================================
+// CF Battle Arena
+// =============================================
+model BattleMatch {
+  id             String        @id @default(uuid())
+  problemId      String        // e.g., "1512-A"
+  problemName    String
+  problemLink    String
+  difficulty     Int?          // e.g., 800
+  tags           String[]
+  status         String        @default("WAITING") // WAITING, STARTING, IN_PROGRESS, COMPLETED, CANCELLED
+  winnerId       String?       
+  startTime      DateTime?
+  endTime        DateTime?
+  createdAt      DateTime      @default(now())
+  conversationId String?       @unique
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  players        BattlePlayer[]
+
+  @@map("battle_matches")
+}
+
+model BattlePlayer {
+  id        String      @id @default(uuid())
+  matchId   String
+  userId    String
+  cfHandle  String?     // Built for selecting between multiple linked CF accounts
+  joinedAt  DateTime    @default(now())
+
+  match     BattleMatch @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, userId])
+  @@map("battle_players")
+}
+

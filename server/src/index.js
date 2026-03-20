@@ -16,6 +16,7 @@ import postRoutes from './routes/posts.js';
 import commentRoutes from './routes/comments.js';
 import focusRoutes from './routes/focus.js';
 import badgeRoutes from './routes/badges.js';
+import battleRoutes from './routes/battles.js';
 import config from './config.js'; // Keep config for server start logs
 
 const app = express();
@@ -44,6 +45,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/posts', commentRoutes); // Comments are nested under /api/posts/:postId/comments
 app.use('/api/focus', focusRoutes);
 app.use('/api/badge', badgeRoutes);
+app.use('/api/battles', battleRoutes);
 
 // ── Global Error Handler ──
 app.use((err, _req, res, _next) => {

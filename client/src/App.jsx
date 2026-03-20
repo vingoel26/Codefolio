@@ -21,6 +21,8 @@ import Blog from './pages/Blog';
 import PostEditor from './pages/PostEditor';
 import PostView from './pages/PostView';
 import PortfolioEngine from './pages/PortfolioEngine';
+import Arena from './pages/Arena';
+import BattleRoom from './pages/BattleRoom';
 import ChatPage from './pages/ChatPage';
 import ChatPanel from './components/widgets/ChatPanel';
 
@@ -85,6 +87,8 @@ function App() {
                         <Route path="/blog/edit/:id" element={<PostEditor />} />
                         <Route path="/blog/:slug" element={<PostView />} />
                         <Route path="/chat" element={<ChatPage />} />
+                        <Route path="/arena" element={<Arena />} />
+                        <Route path="/arena/:id" element={<BattleRoom />} />
                     </Route>
                 </Routes>
             </AppInit>

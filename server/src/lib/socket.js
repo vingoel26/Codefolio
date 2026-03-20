@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import config from '../config.js';
 
 import { registerChatHandlers } from './chat.js';
+import { registerBattleHandlers } from '../socket/battleHandler.js';
 
 let io;
 const onlineUsers = new Map(); // userId -> Set of socketIds (to handle multiple tabs)
@@ -54,6 +55,7 @@ export const initSocket = (server) => {
 
         // ── Register Feature Handlers ──
         registerChatHandlers(io, socket);
+        registerBattleHandlers(io, socket);
 
         // Standard handlers
         socket.on('disconnect', () => {

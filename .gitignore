@@ -2,3 +2,5 @@ node_modules/
 .env
 *.env.local
 Codefolio_Build_Specification.docx
+dist/
+dist-ssr/

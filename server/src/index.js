@@ -4,7 +4,6 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import { configurePassport } from './lib/passport.js';
-import { startCron } from './lib/cron.js';
 import { initSocket } from './lib/socket.js';
 import { seedDatabase } from './lib/seed.js';
 import authRoutes from './routes/auth.js';
@@ -63,14 +62,15 @@ const PORT = process.env.PORT || 3001;
 
 // ── Start Server ──
 httpServer.listen(config.port, async () => {
-    await seedDatabase();
+    if (config.nodeEnv === 'development') {
+        await seedDatabase();
+    }
     console.log(`\n  🚀 Codefolio API running at http://localhost:${config.port}`);
     console.log(`  📡 Health check: http://localhost:${config.port}/api/health`);
     console.log(`  🌐 Client URL: ${config.clientUrl}`);
     console.log(`  🔑 Google OAuth: ${config.google.clientId ? '✓ configured' : '✗ not configured'}`);
     console.log(`  🔑 GitHub OAuth: ${config.github.clientId ? '✓ configured' : '✗ not configured'}`);
     console.log(`  📦 Environment: ${config.nodeEnv}\n`);
-    startCron();
 });
 
 export default app;

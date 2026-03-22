@@ -11,6 +11,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
  *
  * For now (before backend), we use mock auth to build the UI flow.
  */
+let initPromise = null;
+
 export const useAuthStore = create((set, get) => ({
     // State
     user: null,
@@ -24,28 +26,39 @@ export const useAuthStore = create((set, get) => ({
      * Tries to refresh the session using the HttpOnly refresh token cookie.
      */
     initialize: async () => {
-        try {
-            const res = await fetch(`${API_URL}/auth/refresh`, {
-                method: 'POST',
-                credentials: 'include', // sends HttpOnly cookie
-            });
+        if (initPromise) return initPromise;
 
-            if (res.ok) {
-                const data = await res.json();
-                set({
-                    user: data.user,
-                    accessToken: data.accessToken,
-                    isAuthenticated: true,
-                    isLoading: false,
-                    error: null,
+        initPromise = (async () => {
+            try {
+                const res = await fetch(`${API_URL}/auth/refresh`, {
+                    method: 'POST',
+                    credentials: 'include', // sends HttpOnly cookie
                 });
-            } else {
+
+                if (res.ok) {
+                    const data = await res.json();
+                    set({
+                        user: data.user,
+                        accessToken: data.accessToken,
+                        isAuthenticated: true,
+                        isLoading: false,
+                        error: null,
+                    });
+                    return true;
+                } else {
+                    set({ isLoading: false, isAuthenticated: false });
+                    return false;
+                }
+            } catch {
+                // Backend not available yet — just mark as not loading
                 set({ isLoading: false, isAuthenticated: false });
+                return false;
+            } finally {
+                initPromise = null;
             }
-        } catch {
-            // Backend not available yet — just mark as not loading
-            set({ isLoading: false, isAuthenticated: false });
-        }
+        })();
+
+        return initPromise;
     },
 
     /**

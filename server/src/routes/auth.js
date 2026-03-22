@@ -18,7 +18,7 @@ const router = Router();
 const REFRESH_COOKIE_OPTIONS = {
     httpOnly: true,
     secure: config.nodeEnv === 'production',
-    sameSite: config.nodeEnv === 'production' ? 'strict' : 'lax',
+    sameSite: config.nodeEnv === 'production' ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     path: '/',
 };

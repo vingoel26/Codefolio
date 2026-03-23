@@ -30,6 +30,7 @@ import ChatPage from './pages/ChatPage';
 import SmartAnalytics from './pages/SmartAnalytics';
 import Contests from './pages/Contests';
 import ChatPanel from './components/widgets/ChatPanel';
+import SplashScreen from './components/ui/SplashScreen';
 
 function AppInit({ children }) {
     const initialize = useAuthStore((s) => s.initialize);
@@ -48,6 +49,10 @@ function AppInit({ children }) {
             disconnectSocket();
         }
     }, [accessToken, connectSocket, disconnectSocket]);
+
+    if (useAuthStore((s) => s.isLoading)) {
+        return <SplashScreen />;
+    }
 
     return (
         <>

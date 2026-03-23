@@ -6,7 +6,6 @@ import { Navigate } from 'react-router-dom';
 export default function Landing() {
     const { isAuthenticated, isLoading } = useAuthStore();
 
-    if (isLoading) return null;
     if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
     return (

@@ -7,7 +7,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
  *
  * Token storage strategy:
  * - Access token: in-memory (Zustand state) — short-lived (15 min)
- * - Refresh token: HttpOnly cookie (set by backend) — long-lived (7 days)
+ * - Refresh token: LocalStorage (Bypass Brave Shields/ITP) — long-lived (7 days)
  *
  * For now (before backend), we use mock auth to build the UI flow.
  */
@@ -23,16 +23,23 @@ export const useAuthStore = create((set, get) => ({
 
     /**
      * Initialize auth state — called on app mount.
-     * Tries to refresh the session using the HttpOnly refresh token cookie.
+     * Tries to refresh the session using the LocalStorage refresh token.
      */
     initialize: async () => {
         if (initPromise) return initPromise;
 
         initPromise = (async () => {
             try {
+                const token = localStorage.getItem('refreshToken');
+                if (!token) {
+                    set({ isLoading: false, isAuthenticated: false });
+                    return false;
+                }
+
                 const res = await fetch(`${API_URL}/auth/refresh`, {
                     method: 'POST',
-                    credentials: 'include', // sends HttpOnly cookie
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refreshToken: token })
                 });
 
                 if (res.ok) {
@@ -46,6 +53,7 @@ export const useAuthStore = create((set, get) => ({
                     });
                     return true;
                 } else {
+                    localStorage.removeItem('refreshToken');
                     set({ isLoading: false, isAuthenticated: false });
                     return false;
                 }
@@ -113,15 +121,20 @@ export const useAuthStore = create((set, get) => ({
      */
     logout: async () => {
         try {
+            const token = localStorage.getItem('refreshToken');
             await fetch(`${API_URL}/auth/logout`, {
                 method: 'POST',
-                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refreshToken: token }),
             });
         } catch {
             // Best effort
         }
 
-        // Ensure browser clears any accessible session local state
+        // Clean local state
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('cfHandle');
+        localStorage.removeItem('lcUsername');
         document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 
         set({
@@ -174,7 +187,6 @@ export const useAuthStore = create((set, get) => ({
                 ...options.headers,
                 Authorization: `Bearer ${accessToken}`,
             },
-            credentials: 'include',
         });
 
         // If 401, try refresh
@@ -188,7 +200,6 @@ export const useAuthStore = create((set, get) => ({
                         ...options.headers,
                         Authorization: `Bearer ${newToken}`,
                     },
-                    credentials: 'include',
                 });
             }
         }
@@ -237,6 +248,8 @@ export const useAuthStore = create((set, get) => ({
                 throw new Error(data.error || 'Registration failed');
             }
 
+            localStorage.setItem('refreshToken', data.refreshToken);
+
             set({
                 user: data.user,
                 accessToken: data.accessToken,
@@ -269,6 +282,8 @@ export const useAuthStore = create((set, get) => ({
             if (!res.ok) {
                 throw new Error(data.error || 'Login failed');
             }
+
+            localStorage.setItem('refreshToken', data.refreshToken);
 
             set({
                 user: data.user,

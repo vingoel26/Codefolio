@@ -26,6 +26,7 @@ export default function AuthCallback() {
         hasRun.current = true;
 
         const token = searchParams.get('token');
+        const refreshToken = searchParams.get('refreshToken');
         const errorParam = searchParams.get('error');
 
         if (errorParam) {
@@ -34,8 +35,11 @@ export default function AuthCallback() {
         }
 
         if (token) {
-            // Save the access token
+            // Save the tokens
             setAccessToken(token);
+            if (refreshToken) {
+                localStorage.setItem('refreshToken', refreshToken);
+            }
 
             // Fetch user profile
             fetchMe().then((success) => {

@@ -24,15 +24,13 @@ const REFRESH_COOKIE_OPTIONS = {
 };
 
 /**
- * Helper — issue tokens and set refresh cookie.
+ * Helper — issue tokens and return in JSON.
  */
 async function issueTokens(res, user) {
     const accessToken = generateAccessToken(user);
     const refreshToken = await generateRefreshToken(user.id);
 
-    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
-
-    return { accessToken, user: sanitizeUser(user) };
+    return { accessToken, refreshToken, user: sanitizeUser(user) };
 }
 
 /**
@@ -164,8 +162,8 @@ router.get(
     passport.authenticate('google', { session: false, failureRedirect: `${config.clientUrl}/login?error=google_failed` }),
     async (req, res) => {
         try {
-            const { accessToken } = await issueTokens(res, req.user);
-            res.redirect(`${config.clientUrl}/auth/callback/google?token=${accessToken}`);
+            const { accessToken, refreshToken } = await issueTokens(res, req.user);
+            res.redirect(`${config.clientUrl}/auth/callback/google?token=${accessToken}&refreshToken=${refreshToken}`);
         } catch (err) {
             console.error('Google callback error:', err);
             res.redirect(`${config.clientUrl}/login?error=server_error`);
@@ -186,8 +184,8 @@ router.get(
     passport.authenticate('github', { session: false, failureRedirect: `${config.clientUrl}/login?error=github_failed` }),
     async (req, res) => {
         try {
-            const { accessToken } = await issueTokens(res, req.user);
-            res.redirect(`${config.clientUrl}/auth/callback/github?token=${accessToken}`);
+            const { accessToken, refreshToken } = await issueTokens(res, req.user);
+            res.redirect(`${config.clientUrl}/auth/callback/github?token=${accessToken}&refreshToken=${refreshToken}`);
         } catch (err) {
             console.error('GitHub callback error:', err);
             res.redirect(`${config.clientUrl}/login?error=server_error`);
@@ -199,10 +197,10 @@ router.get(
 // Token Management
 // ═══════════════════════════════════════════
 
-// POST /api/auth/refresh — refresh access token using HttpOnly cookie
+// POST /api/auth/refresh — refresh access token manually
 router.post('/refresh', async (req, res) => {
-    const token = req.cookies?.refreshToken;
-    console.log('[Auth] /refresh hit. Cookie present:', !!token);
+    const token = req.body?.refreshToken;
+    console.log('[Auth] /refresh hit. Token present in body:', !!token);
 
     if (!token) {
         return res.status(401).json({ error: 'No refresh token' });
@@ -212,7 +210,6 @@ router.post('/refresh', async (req, res) => {
     console.log('[Auth] Token verified in DB:', !!user);
 
     if (!user) {
-        res.clearCookie('refreshToken', REFRESH_COOKIE_OPTIONS);
         return res.status(401).json({ error: 'Invalid or expired refresh token' });
     }
 
@@ -220,27 +217,16 @@ router.post('/refresh', async (req, res) => {
     // This entirely prevents Token Rotation Race Conditions during page reloads or minor network drops.
     const accessToken = generateAccessToken(user);
 
-    // Refresh the cookie's explicit Expiration date in the browser using the same existing token.
-    res.cookie('refreshToken', token, REFRESH_COOKIE_OPTIONS);
-
     res.json({ accessToken, user: sanitizeUser(user) });
 });
 
 // POST /api/auth/logout — revoke refresh token
 router.post('/logout', async (req, res) => {
-    const token = req.cookies?.refreshToken;
+    const token = req.body?.refreshToken;
 
     if (token) {
         await revokeRefreshToken(token);
     }
-
-    res.clearCookie('refreshToken', { ...REFRESH_COOKIE_OPTIONS });
-    res.clearCookie('access_token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/'
-    });
 
     res.json({ message: 'Logged out' });
 });

@@ -202,12 +202,14 @@ router.get(
 // POST /api/auth/refresh — refresh access token using HttpOnly cookie
 router.post('/refresh', async (req, res) => {
     const token = req.cookies?.refreshToken;
+    console.log('[Auth] /refresh hit. Cookie present:', !!token);
 
     if (!token) {
         return res.status(401).json({ error: 'No refresh token' });
     }
 
     const user = await verifyRefreshToken(token);
+    console.log('[Auth] Token verified in DB:', !!user);
 
     if (!user) {
         res.clearCookie('refreshToken', REFRESH_COOKIE_OPTIONS);

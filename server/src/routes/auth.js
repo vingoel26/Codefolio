@@ -38,7 +38,7 @@ async function issueTokens(res, user) {
  */
 function sanitizeUser(user) {
     const { providerId, passwordHash, ...safe } = user;
-    return safe;
+    return { ...safe, hasPassword: !!passwordHash };
 }
 
 // ═══════════════════════════════════════════
@@ -50,8 +50,8 @@ router.post('/register', async (req, res) => {
     const { email, password, displayName, username } = req.body;
 
     // Validation
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
+    if (!email || !password || !username) {
+        return res.status(400).json({ error: 'Email, password, and username are required' });
     }
 
     if (password.length < 6) {
@@ -87,7 +87,7 @@ router.post('/register', async (req, res) => {
                 email: email.toLowerCase().trim(),
                 passwordHash,
                 displayName: displayName || email.split('@')[0],
-                username: username || null,
+                username: username.toLowerCase().trim(),
                 provider: null,
                 providerId: null,
             },

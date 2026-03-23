@@ -16,6 +16,9 @@ import Codeforces from './pages/Codeforces';
 import Accounts from './pages/Accounts';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
+import CompleteProfile from './pages/CompleteProfile';
+import Landing from './pages/Landing';
+import About from './pages/About';
 import Feed from './pages/Feed';
 import Blog from './pages/Blog';
 import PostEditor from './pages/PostEditor';
@@ -60,13 +63,25 @@ function App() {
             <AppInit>
                 <Routes>
                     {/* Public routes */}
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/about" element={<About />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/auth/callback/:provider" element={<AuthCallback />} />
                     <Route path="/u/:username" element={<Profile standalone />} />
                     <Route path="/portfolio/:username" element={<PortfolioEngine />} />
 
-                    {/* Protected routes (require auth) */}
+                    {/* Protected route WITHOUT Layout (full screen like Login) */}
+                    <Route
+                        path="/complete-profile"
+                        element={
+                            <ProtectedRoute>
+                                <CompleteProfile />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Protected routes WITH Layout (Dashboard) */}
                     <Route
                         element={
                             <ProtectedRoute>
@@ -74,7 +89,7 @@ function App() {
                             </ProtectedRoute>
                         }
                     >
-                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/feed" element={<Feed />} />
                         <Route path="/codeforces" element={<Codeforces />} />
                         <Route path="/leetcode" element={<LeetCode />} />

@@ -214,11 +214,14 @@ router.post('/refresh', async (req, res) => {
         return res.status(401).json({ error: 'Invalid or expired refresh token' });
     }
 
-    // Rotate: revoke old, issue new
-    await revokeRefreshToken(token);
-    const result = await issueTokens(res, user);
+    // Generate a fresh access token without revolving the underlying refresh token database record.
+    // This entirely prevents Token Rotation Race Conditions during page reloads or minor network drops.
+    const accessToken = generateAccessToken(user);
 
-    res.json(result);
+    // Refresh the cookie's explicit Expiration date in the browser using the same existing token.
+    res.cookie('refreshToken', token, REFRESH_COOKIE_OPTIONS);
+
+    res.json({ accessToken, user: sanitizeUser(user) });
 });
 
 // POST /api/auth/logout — revoke refresh token

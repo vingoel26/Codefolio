@@ -33,7 +33,7 @@ async function getCFProblems() {
 // Create a new match room
 router.post('/', requireAuth, async (req, res) => {
     try {
-        const { minDifficulty, maxDifficulty, tags, cfHandle } = req.body;
+        const { minDifficulty, maxDifficulty, tags, cfHandle, duration } = req.body;
 
         const allProblems = await getCFProblems();
 
@@ -72,6 +72,7 @@ router.post('/', requireAuth, async (req, res) => {
                 difficulty: problem.rating,
                 tags: problem.tags,
                 status: 'WAITING',
+                duration: duration || 60,
                 conversationId: conversation.id,
                 players: {
                     create: { userId: req.user.id, cfHandle }
@@ -116,6 +117,13 @@ router.get('/:id', async (req, res) => {
             }
         });
         if (!match) return res.status(404).json({ error: 'Match not found' });
+
+        // Mask details if WAITING
+        if (match.status === 'WAITING') {
+            match.problemName = '???';
+            match.problemLink = '#';
+        }
+
         res.json(match);
     } catch (error) {
         console.error('Error fetching battle detail:', error);

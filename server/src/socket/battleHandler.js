@@ -21,6 +21,24 @@ export const registerBattleHandlers = (io, socket) => {
                 include: { players: { include: { user: { include: { linkedAccounts: { where: { platform: 'codeforces' } } } } } } }
             });
 
+            // Verify the provided cfHandle belongs to the user
+            if (!cfHandle) {
+                // If they are already in the match, we might allow them to re-join without re-specifying,
+                // but for a NEW join as a player, it's mandatory.
+                const existingPlayer = match.players.find(p => p.userId === userId);
+                if (!existingPlayer && match.players.length < 2) {
+                    return socket.emit('battle:error', 'A Codeforces handle is required to participate. Please select one in the lobby or link your account.');
+                }
+            } else {
+                const userRes = await prisma.user.findUnique({
+                    where: { id: userId },
+                    include: { linkedAccounts: { where: { platform: 'codeforces', handle: cfHandle } } }
+                });
+                if (!userRes || userRes.linkedAccounts.length === 0) {
+                    return socket.emit('battle:error', 'This Codeforces handle is not linked to your account.');
+                }
+            }
+
             if (!match) return socket.emit('battle:error', 'Match not found');
 
             // Find or create player
@@ -44,6 +62,27 @@ export const registerBattleHandlers = (io, socket) => {
                 // Update local match object
                 match.players.push(player);
                 io.to(`battle_${matchId}`).emit('battle:playerJoined', player);
+
+                // Add player to conversation participants
+                if (match.conversationId) {
+                    try {
+                        await prisma.conversationParticipant.upsert({
+                            where: {
+                                userId_conversationId: {
+                                    userId: userId,
+                                    conversationId: match.conversationId
+                                }
+                            },
+                            create: {
+                                userId: userId,
+                                conversationId: match.conversationId
+                            },
+                            update: {} // No-op if already exists
+                        });
+                    } catch (cErr) {
+                        console.error("[Battle] Failed to add participant to conversation:", cErr);
+                    }
+                }
             }
 
             socket.join(`battle_${matchId}`);
@@ -166,6 +205,31 @@ async function pollMatchStatus(match, handles, io, intervalTimer) {
     } catch (error) {
         console.error(`[Battle] Error polling CF for match ${match.id}:`, error.message);
     }
+
+    // Check for Timeout
+    if (match.startTime && match.duration) {
+        const elapsedMinutes = (Date.now() - new Date(match.startTime).getTime()) / 60000;
+        if (elapsedMinutes >= match.duration) {
+            console.log(`[Battle] Match ${match.id} timed out after ${match.duration}m.`);
+            await terminateMatch(match.id, io, intervalTimer, 'TIMEOUT');
+        }
+    }
+}
+
+async function terminateMatch(matchId, io, intervalTimer, reason) {
+    clearInterval(intervalTimer);
+    activePolls.delete(matchId);
+
+    const match = await prisma.battleMatch.update({
+        where: { id: matchId },
+        data: {
+            status: reason === 'TIMEOUT' ? 'CANCELLED' : 'COMPLETED',
+            endTime: new Date()
+        },
+        include: { players: { include: { user: true } } }
+    });
+
+    io.to(`battle_${matchId}`).emit('battle:completed', match);
 }
 
 async function declareWinner(matchId, winnerId, io, intervalTimer) {

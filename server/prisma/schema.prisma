@@ -295,6 +295,7 @@ model BattleMatch {
   winnerId       String?       
   startTime      DateTime?
   endTime        DateTime?
+  duration       Int           @default(60) // in minutes
   createdAt      DateTime      @default(now())
   conversationId String?       @unique
   conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)

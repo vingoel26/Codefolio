@@ -10,7 +10,7 @@ import ChatPanel from '../widgets/ChatPanel';
  */
 export default function Layout() {
     const location = useLocation();
-    const isFullBleed = ['/chat', '/analytics', '/coach'].includes(location.pathname);
+    const isFullBleed = ['/chat', '/analytics', '/coach', '/contests'].includes(location.pathname);
 
     return (
         <div className="app-layout">

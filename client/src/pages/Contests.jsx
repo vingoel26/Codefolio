@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar as CalendarIcon, Bell, Loader2, ExternalLink, Clock, Trophy, Check } from 'lucide-react';
+import { Calendar as CalendarIcon, Bell, Loader2, ExternalLink, Clock, Trophy, Check, Brain } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -7,6 +7,28 @@ export default function Contests() {
     const [contests, setContests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [reminders, setReminders] = useState({}); // Stores which contest IDs have active reminders
+    const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+    const loadingMessages = [
+        "Fetching Global Contest Schedules...",
+        "Synchronizing Platform Timelines...",
+        "Parsing Competitive Metadata...",
+        "Neural Mapping of Match Schedules...",
+        "Optimizing Reminder Protocols...",
+        "Calibrating Neural Sync..."
+    ];
+
+    useEffect(() => {
+        let interval;
+        if (loading) {
+            interval = setInterval(() => {
+                setLoadingMessageIndex(prev => (prev + 1) % loadingMessages.length);
+            }, 1800);
+        } else {
+            setLoadingMessageIndex(0);
+        }
+        return () => clearInterval(interval);
+    }, [loading]);
 
     useEffect(() => {
         const fetchContests = async () => {
@@ -88,7 +110,39 @@ export default function Contests() {
     };
 
     if (loading) {
-        return <div className="flex-center h-screen"><Loader2 size={40} className="spin text-accent" /></div>;
+        return (
+            <div className="flex flex-col items-center justify-center h-[80vh] animate-fade-in w-full">
+                <div className="neural-loader-ring">
+                    <div className="ring-inner pulse-accent" />
+                    <Brain size={48} className="text-accent animate-pulse" />
+                </div>
+                <div className="mt-12 h-6 overflow-hidden flex justify-center w-full">
+                    <p className="loading-message-text animate-slide-up whitespace-nowrap">
+                        {loadingMessages[loadingMessageIndex]}
+                    </p>
+                </div>
+                <div className="loading-bar-tracker mt-8">
+                    <div className="inner-progress" style={{ width: `${(loadingMessageIndex + 1) * 16}%` }} />
+                </div>
+                <style>{`
+                    .neural-loader-ring { position: relative; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; }
+                    .ring-inner { position: absolute; inset: 0; border: 3px solid var(--accent); border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; animation: morph 4s linear infinite; opacity: 0.3; }
+                    @keyframes morph {
+                      0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; transform: rotate(0deg); }
+                      25% { border-radius: 58% 42% 75% 25% / 56% 44% 56% 44%; }
+                      50% { border-radius: 50% 50% 33% 67% / 63% 37% 63% 37%; transform: rotate(180deg); }
+                      75% { border-radius: 42% 58% 51% 49% / 51% 49% 51% 49%; }
+                    }
+                    .loading-message-text { color: var(--accent); font-size: 1rem; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; }
+                    .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+                    @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+                    .animate-fade-in { animation: fadeIn 0.8s ease-out; }
+                    .loading-bar-tracker { width: 300px; height: 3px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+                    .inner-progress { height: 100%; background: var(--accent); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 15px var(--accent); }
+                `}</style>
+            </div>
+        );
     }
 
     // Grouping
@@ -103,57 +157,86 @@ export default function Contests() {
     };
 
     return (
-        <div className="contests-page p-8 max-w-[1000px] mx-auto">
-            <header className="mb-10 text-center">
-                <h1 className="text-4xl font-black mb-4 flex items-center justify-center gap-3">
-                    <CalendarIcon size={36} className="text-accent" /> Upcoming Contests
-                </h1>
-                <p className="text-muted text-lg max-w-2xl mx-auto">
-                    A unified chronological tracker for Codeforces and LeetCode matches. Never miss a rated round again.
-                </p>
+        <div className="contests-page min-h-screen">
+            <div className="neural-bg-glow" />
+            
+            <header className="analytics-hero-header glass-header animate-fade-in mb-12" style={{ paddingLeft: '80px' }}>
+                <div className="hero-content-wrapper max-w-[1400px] pl-12 pr-8">
+                    <div className="flex items-center gap-8 mb-4">
+                        <div className="analytics-logo-orb-v2 pulse-glow-purple">
+                            <CalendarIcon size={32} className="text-white" />
+                        </div>
+                        <div className="hero-text-stack">
+                            <h1 className="hero-main-title">
+                                Global Contest Sync
+                            </h1>
+                            <p className="hero-sub-title">
+                                Neural synchronization with {contests.length} upcoming competitive events.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </header>
+
+            <div className="max-w-[1440px] pl-32 pr-10 pt-24 pb-48">
 
             <div className="timeline-container">
                 {Object.entries(grouped).map(([groupName, groupContests]) => {
                     if (groupContests.length === 0) return null;
                     return (
-                        <div key={groupName} className="timeline-group mb-12">
-                            <h2 className="group-heading">{groupName}</h2>
-                            <div className="contest-list">
+                        <div key={groupName} className="timeline-group animate-fade-in">
+                            <div className="flex items-center gap-6 mb-32" style={{ paddingLeft: '40px' }}>
+                                <h2 className="group-heading-v2">{groupName}</h2>
+                                <div className="group-line-v2" />
+                            </div>
+                            <div className="contest-grid-v2" style={{ paddingLeft: '40px' }}>
                                 {groupContests.map(c => {
                                     const { date, time } = formatDate(c.startTime);
                                     const style = getPlatformStyles(c.platform);
                                     
                                     return (
-                                        <div key={c.id} className="contest-card">
-                                            <div className="contest-date-block">
-                                                <div className="c-date">{date}</div>
-                                                <div className="c-time"><Clock size={14} className="mr-1 inline -mt-0.5" /> {time}</div>
-                                            </div>
+                                        <div key={c.id} className="premium-glass-panel contest-card-v2 group">
+                                            <div className="card-accent-line" style={{ background: style.border }} />
                                             
-                                            <div className="contest-body" style={{ borderLeftColor: style.border }}>
-                                                <div className="contest-header flex justify-between items-start">
-                                                    <div>
-                                                        <span className="platform-badge" style={{ backgroundColor: style.bg, color: style.color }}>
-                                                            {c.platform.toUpperCase()}
-                                                        </span>
-                                                        <h3 className="contest-title">{c.name}</h3>
-                                                    </div>
-                                                    
-                                                    <div className="flex gap-2">
-                                                        <button 
-                                                            className={`btn-notification ${reminders[c.id] ? 'btn-active' : ''}`}
-                                                            onClick={() => handleRemindMe(c)}
-                                                        >
-                                                            {reminders[c.id] ? <Check size={16} /> : <Bell size={16} />}
-                                                        </button>
-                                                        <a href={c.url} target="_blank" rel="noreferrer" className="btn-go">
-                                                            <ExternalLink size={16} /> Participate
-                                                        </a>
+                                            <div className="contest-card-inner">
+                                                <div className="contest-date-sidebar">
+                                                    <div className="c-date-v2">{date}</div>
+                                                    <div className="c-time-v2">
+                                                        <Clock size={14} className="text-accent" /> {time}
                                                     </div>
                                                 </div>
-                                                <div className="contest-meta">
-                                                    <span><Trophy size={14} className="mr-1 inline" /> Duration: {Math.floor(c.durationSeconds / 60)} mins</span>
+                                                
+                                                <div className="contest-main-content">
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <div className="platform-tag-v2" style={{ backgroundColor: style.bg, color: style.color }}>
+                                                            {c.platform.toUpperCase()}
+                                                        </div>
+                                                        <div className="flex gap-3">
+                                                            <button 
+                                                                className={`action-btn-v2 ${reminders[c.id] ? 'active-reminder' : ''}`}
+                                                                onClick={() => handleRemindMe(c)}
+                                                                title="Set Reminder"
+                                                            >
+                                                                {reminders[c.id] ? <Check size={18} /> : <Bell size={18} />}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <h3 className="contest-title-v2 group-hover:text-accent transition-colors">
+                                                        {c.name}
+                                                    </h3>
+                                                    
+                                                    <div className="contest-footer-v2">
+                                                        <div className="meta-item-v2">
+                                                            <Trophy size={14} className="text-muted" />
+                                                            <span>{Math.floor(c.durationSeconds / 60)} Minutes</span>
+                                                        </div>
+                                                        
+                                                        <a href={c.url} target="_blank" rel="noreferrer" className="participate-link-v2">
+                                                            <span>PARTICIPATE</span>
+                                                            <ExternalLink size={16} />
+                                                        </a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -164,132 +247,58 @@ export default function Contests() {
                     );
                 })}
             </div>
+        </div>
 
             <style>{`
-                .group-heading {
-                    font-size: 1.125rem;
-                    font-weight: 800;
-                    text-transform: uppercase;
-                    letter-spacing: 0.1em;
-                    color: var(--text-muted);
-                    margin-bottom: 24px;
-                    display: flex;
-                    align-items: center;
-                    gap: 16px;
-                }
-                .group-heading::after {
-                    content: '';
-                    flex: 1;
-                    height: 1px;
-                    background: var(--border);
-                }
-                .contest-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                }
-                .contest-card {
-                    display: flex;
-                    background: var(--bg-secondary);
-                    border: 1px solid var(--border);
-                    border-radius: var(--radius-lg);
-                    overflow: hidden;
-                    transition: all 0.2s;
-                }
-                .contest-card:hover {
-                    border-color: var(--border-strong);
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                }
-                .contest-date-block {
-                    background: var(--bg-tertiary);
-                    padding: 24px;
-                    min-width: 140px;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: center;
-                    align-items: center;
-                    border-right: 1px solid var(--border);
-                }
-                .c-date {
-                    font-weight: 800;
-                    font-size: 1.125rem;
-                    color: var(--text-primary);
-                    margin-bottom: 4px;
-                }
-                .c-time {
-                    font-size: 0.875rem;
-                    color: var(--text-muted);
-                    font-weight: 600;
-                }
-                .contest-body {
-                    padding: 24px;
-                    flex: 1;
-                    border-left: 4px solid var(--border);
-                }
-                .platform-badge {
-                    font-size: 0.75rem;
-                    font-weight: 800;
-                    padding: 4px 10px;
-                    border-radius: var(--radius-full);
-                    margin-bottom: 12px;
-                    display: inline-block;
-                    letter-spacing: 0.05em;
-                }
-                .contest-title {
-                    font-size: 1.25rem;
-                    font-weight: 700;
-                    margin-bottom: 12px;
-                }
-                .contest-meta {
-                    font-size: 0.875rem;
-                    color: var(--text-muted);
-                    display: flex;
-                    gap: 16px;
-                }
-                .btn-go {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    background: var(--accent);
-                    color: white;
-                    padding: 8px 16px;
-                    border-radius: var(--radius-md);
-                    font-weight: 600;
-                    font-size: 0.875rem;
-                    text-decoration: none;
-                    transition: all 0.2s;
-                }
-                .btn-go:hover {
-                    opacity: 0.9;
-                }
-                .btn-notification {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 36px;
-                    height: 36px;
-                    border-radius: var(--radius-md);
-                    border: 1px solid var(--border);
-                    background: var(--bg-primary);
-                    color: var(--text-muted);
-                    cursor: pointer;
-                    transition: all 0.2s;
-                }
-                .btn-notification:hover {
-                    border-color: var(--text-primary);
-                    color: var(--text-primary);
-                }
-                .btn-active {
-                    background: rgba(16, 185, 129, 0.1);
-                    color: var(--success);
-                    border-color: var(--success);
-                }
-                .btn-active:hover {
-                    background: rgba(16, 185, 129, 0.2);
-                    border-color: var(--success);
-                    color: var(--success);
-                }
+                .contests-page { color: var(--text-primary); background: var(--bg-primary); position: relative; height: 100vh; overflow-y: auto; }
+                .neural-bg-glow { position: fixed; top: 0; right: 0; width: 600px; height: 600px; background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%); z-index: 0; pointer-events: none; }
+
+                /* Hero Header */
+                .analytics-hero-header { padding: 40px 0; border-bottom: 1px solid var(--border); background: var(--bg-secondary); }
+                .hero-main-title { font-size: 2.5rem; font-weight: 900; letter-spacing: -0.02em; background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+                .hero-sub-title { color: var(--text-muted); font-size: 1.1rem; }
+                .analytics-logo-orb-v2 { width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: var(--accent); box-shadow: 0 0 30px rgba(99, 102, 241, 0.4); }
+                .pulse-glow-purple { animation: purple-glow 3s infinite alternate; }
+                @keyframes purple-glow { from { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); } to { box-shadow: 0 0 40px rgba(168, 85, 247, 0.6); } }
+
+                /* Timeline Groups */
+                .timeline-group { margin-bottom: 40px; }
+                .timeline-group:first-child { margin-top: 40px; }
+                .group-heading-v2 { font-size: 1.5rem; font-weight: 950; text-transform: uppercase; letter-spacing: 0.35em; color: var(--text-muted); opacity: 0.95; }
+                .group-line-v2 { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); margin-left: 32px; opacity: 0.6; }
+
+                /* Contest Cards */
+                .contest-grid-v2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 24px; }
+                @media (max-width: 768px) { .contest-grid-v2 { grid-template-columns: 1fr; } }
+
+                .premium-glass-panel { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 24px; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+                .contest-card-v2:hover { transform: translateY(-6px) scale(1.01); background: rgba(30, 41, 59, 0.6); border-color: rgba(99, 102, 241, 0.3); box-shadow: 0 20px 40px -20px rgba(0,0,0,0.5); }
+                
+                .card-accent-line { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; opacity: 0.6; transition: width 0.3s; }
+                .contest-card-v2:hover .card-accent-line { width: 6px; opacity: 1; }
+
+                .contest-card-inner { display: flex; padding: 28px; gap: 24px; }
+                .contest-date-sidebar { min-width: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid rgba(255,255,255,0.05); padding-right: 24px; }
+                .c-date-v2 { font-size: 1.1rem; font-weight: 900; color: var(--text-primary); text-align: center; line-height: 1.2; }
+                .c-time-v2 { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 6px; }
+
+                .contest-main-content { flex: 1; }
+                .platform-tag-v2 { font-size: 0.7rem; font-weight: 900; padding: 4px 12px; border-radius: 8px; letter-spacing: 0.1em; display: inline-block; }
+                .contest-title-v2 { font-size: 1.4rem; font-weight: 800; line-height: 1.3; margin: 12px 0 20px 0; }
+                
+                .contest-footer-v2 { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); }
+                .meta-item-v2 { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+                
+                .participate-link-v2 { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 900; color: var(--accent); letter-spacing: 0.1em; text-decoration: none; transition: all 0.2s; }
+                .participate-link-v2:hover { color: white; transform: translateX(4px); }
+
+                .action-btn-v2 { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.3s; cursor: pointer; }
+                .action-btn-v2:hover { background: rgba(255,255,255,0.1); color: white; border-color: var(--accent); }
+                .active-reminder { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
+
+                /* Anim */
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
             `}</style>
         </div>
     );

@@ -27,7 +27,7 @@ export default function PortfolioEngine() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch(`${API_URL}/users/u/${username}`);
+                const res = await fetch(`${API_URL}/users/u/${username}?_t=${Date.now()}`);
                 if (!res.ok) throw new Error('Portfolio not found');
                 const json = await res.json();
                 setData(json);

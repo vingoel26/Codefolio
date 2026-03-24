@@ -106,7 +106,7 @@ export default function Profile({ standalone = false }) {
                 await Promise.all(
                     PLATS.map(async (p) => {
                         try {
-                            const res = await fetch(`${API_URL}/sync/accounts/${p.id}`, {
+                                const res = await fetch(`${API_URL}/sync/accounts/${p.id}?_t=${Date.now()}`, {
                                 headers: { Authorization: `Bearer ${accessToken}` },
                                 credentials: 'include',
                             });
@@ -161,7 +161,7 @@ export default function Profile({ standalone = false }) {
                 let socialData = { followersCount: 0, followingCount: 0 };
                 try {
                     const username = currentUser?.username || currentUser?.email?.split('@')[0];
-                    const socialRes = await fetch(`${API_URL}/users/u/${username}`);
+                    const socialRes = await fetch(`${API_URL}/users/u/${username}?_t=${Date.now()}`);
                     if (socialRes.ok) {
                         const sJson = await socialRes.json();
                         socialData.followersCount = sJson.profile.followersCount || 0;
@@ -195,7 +195,7 @@ export default function Profile({ standalone = false }) {
                 const headers = {};
                 if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
 
-                const res = await fetch(`${API_URL}/users/u/${paramUsername}`, {
+                const res = await fetch(`${API_URL}/users/u/${paramUsername}?_t=${Date.now()}`, {
                     headers,
                     credentials: 'include' // needed to detect if logged-in user follows them
                 });

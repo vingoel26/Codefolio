@@ -22,7 +22,7 @@ export function usePlatformData(platform) {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch(`${API_URL}/sync/accounts/${platform}`, {
+            const res = await fetch(`${API_URL}/sync/accounts/${platform}?_t=${Date.now()}`, {
                 headers: { Authorization: `Bearer ${accessToken}` },
                 credentials: 'include',
             });

@@ -11,6 +11,7 @@ const router = Router();
 router.get('/u/:username', optionalAuth, async (req, res) => {
     try {
         const { username } = req.params;
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
 
         const user = await prisma.user.findUnique({
             where: { username },
@@ -25,7 +26,6 @@ router.get('/u/:username', optionalAuth, async (req, res) => {
                 portfolioTagline: true,
                 portfolioSections: true,
                 linkedAccounts: {
-                    where: { isPrimary: true },
                     select: {
                         id: true,
                         platform: true,
@@ -68,48 +68,68 @@ router.get('/u/:username', optionalAuth, async (req, res) => {
             if (follows) isFollowing = true;
         }
 
-        // Extract platform-specific stats from cached data
+        // Extract and AGGREGATE platform-specific stats
         let grandTotalSolved = 0;
-        let bestRating = 0;
+        let globalBestRating = 0;
         let totalContests = 0;
 
-        const platforms = user.linkedAccounts.map((acc) => {
-            const d = typeof acc.data === 'string' ? JSON.parse(acc.data) : acc.data;
-            let solved = 0, rating = 0, contests = 0, heatmap = null;
+        // Group accounts by platform
+        const platformMap = {};
 
-            if (d) {
-                if (acc.platform === 'leetcode') {
-                    solved = d.stats?.totalSolved || 0;
-                    rating = d.contest?.rating || 0;
-                    contests = d.contest?.contestsAttended || 0;
-                    heatmap = d.submissionHeatmap || null;
-                } else if (acc.platform === 'codeforces') {
-                    solved = d.stats?.problemsSolved || 0;
-                    rating = d.profile?.rating || 0;
-                    contests = d.stats?.contestsParticipated || 0;
-                    heatmap = d.submissionHeatmap || null;
-                } else if (acc.platform === 'codechef') {
-                    solved = d.stats?.totalProblemsSolved || 0;
-                    rating = d.stats?.currentRating || 0;
-                    heatmap = d.submissionHeatmap || null;
-                } else if (acc.platform === 'gfg') {
-                    solved = d.stats?.totalProblemsSolved || 0;
-                    rating = d.stats?.codingScore || 0;
-                }
+        user.linkedAccounts.forEach((acc) => {
+            const d = typeof acc.data === 'string' ? JSON.parse(acc.data) : acc.data;
+            if (!d) return;
+
+            if (!platformMap[acc.platform]) {
+                platformMap[acc.platform] = {
+                    platform: acc.platform,
+                    handle: acc.isPrimary ? acc.handle : null, // Prefer primary handle for display
+                    handles: [],
+                    solved: 0,
+                    rating: 0,
+                    contests: 0,
+                    heatmap: null
+                };
             }
 
-            grandTotalSolved += solved;
-            totalContests += contests;
-            if (rating > bestRating) bestRating = rating;
+            const p = platformMap[acc.platform];
+            p.handles.push(acc.handle);
+            if (!p.handle) p.handle = acc.handle; // fallback if no primary
 
-            return {
-                platform: acc.platform,
-                handle: acc.handle,
-                solved,
-                rating,
-                contests,
-                heatmap,
-            };
+            let sVal = 0, rVal = 0, cVal = 0, hMap = null;
+
+            if (acc.platform === 'leetcode') {
+                sVal = d.stats?.totalSolved || 0;
+                rVal = d.contest?.rating || 0;
+                cVal = d.contest?.contestsAttended || 0;
+                hMap = d.submissionHeatmap || null;
+            } else if (acc.platform === 'codeforces') {
+                sVal = d.stats?.problemsSolved || 0;
+                rVal = d.profile?.rating || 0;
+                cVal = d.stats?.contestsParticipated || 0;
+                hMap = d.submissionHeatmap || null;
+            } else if (acc.platform === 'codechef') {
+                sVal = d.stats?.totalProblemsSolved || 0;
+                rVal = d.stats?.currentRating || 0;
+                hMap = d.submissionHeatmap || null;
+            } else if (acc.platform === 'gfg') {
+                sVal = d.stats?.totalProblemsSolved || 0;
+                rVal = d.stats?.codingScore || 0;
+            }
+
+            p.solved += sVal;
+            if (rVal > p.rating) p.rating = rVal;
+            p.contests += cVal;
+            // Merge heatmap if possible or just pick primary
+            if (acc.isPrimary || !p.heatmap) p.heatmap = hMap;
+        });
+
+        // Convert map to array and compute globals
+        const platforms = Object.values(platformMap);
+        platforms.forEach(p => {
+            grandTotalSolved += p.solved;
+            totalContests += p.contests;
+            if (p.rating > globalBestRating) globalBestRating = p.rating;
         });
 
         const platformsLinked = platforms.length;
@@ -126,7 +146,7 @@ router.get('/u/:username', optionalAuth, async (req, res) => {
                 portfolioTagline: user.portfolioTagline,
                 portfolioSections: user.portfolioSections,
                 grandTotalSolved,
-                bestRating,
+                bestRating: globalBestRating,
                 totalContests,
                 platformsLinked,
                 followersCount,

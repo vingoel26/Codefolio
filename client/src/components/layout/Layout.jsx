@@ -16,7 +16,7 @@ export default function Layout() {
         <div className="app-layout">
             <Sidebar />
             <div className="app-main">
-                <Navbar />
+                {location.pathname !== '/coach' && <Navbar />}
                 <main className={`app-content ${isFullBleed ? 'no-padding' : ''}`}>
                     <Outlet />
                 </main>

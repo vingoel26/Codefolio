@@ -168,14 +168,14 @@ export default function ChatPanel() {
 
                 .chat-panel-v2 {
                     position: fixed;
-                    background: rgba(15, 23, 42, 0.9);
+                    background: var(--bg-secondary);
                     backdrop-filter: blur(20px);
                     border: 1px solid var(--border);
                     border-radius: var(--radius-lg);
                     display: none;
                     flex-direction: column;
                     z-index: 1000;
-                    box-shadow: var(--shadow-2xl);
+                    box-shadow: var(--shadow-lg);
                     overflow: hidden;
                     user-select: none;
                 }
@@ -196,7 +196,7 @@ export default function ChatPanel() {
                     justify-content: space-between;
                     padding: 12px 16px;
                     border-bottom: 1px solid var(--border);
-                    background: rgba(0,0,0,0.2);
+                    background: var(--bg-tertiary);
                 }
 
                 .chat-header-title {
@@ -216,13 +216,13 @@ export default function ChatPanel() {
                     border-radius: var(--radius-sm);
                 }
 
-                .chat-close-btn:hover { background: var(--bg-hover); color: white; }
+                .chat-close-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
 
                 .chat-tabs {
                     display: flex;
                     padding: 4px;
                     gap: 2px;
-                    background: rgba(0,0,0,0.3);
+                    background: var(--bg-tertiary);
                 }
 
                 .chat-tab {
@@ -255,7 +255,7 @@ export default function ChatPanel() {
                     flex-direction: column;
                     padding: 8px;
                     gap: 4px;
-                    background: rgba(0,0,0,0.1);
+                    background: var(--bg-tertiary);
                     overflow-y: auto;
                 }
 
@@ -303,7 +303,7 @@ export default function ChatPanel() {
                     color: var(--text-muted);
                 }
 
-                .chat-empty-state-main h3 { color: white; margin-bottom: 8px; font-size: 1rem; }
+                .chat-empty-state-main h3 { color: var(--text-primary); margin-bottom: 8px; font-size: 1rem; }
                 .chat-empty-state-main p { font-size: 0.8125rem; }
 
                 .chat-message-row { display: flex; max-width: 85%; }
@@ -319,7 +319,7 @@ export default function ChatPanel() {
                     gap: 4px;
                     margin-top: 12px;
                     padding-top: 12px;
-                    border-top: 1px solid rgba(255,255,255,0.05);
+                    border-top: 1px solid var(--border);
                 }
 
                 .section-title {
@@ -356,7 +356,7 @@ export default function ChatPanel() {
                 .chat-input-area { padding: 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; position: relative; }
                 .chat-input-area input {
                     flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border);
-                    border-radius: var(--radius-full); padding: 8px 16px; font-size: 0.8125rem; color: white; outline: none;
+                    border-radius: var(--radius-full); padding: 8px 16px; font-size: 0.8125rem; color: var(--text-primary); outline: none;
                 }
                 .chat-input-area input:focus { border-color: var(--accent); }
                 .chat-input-area button {

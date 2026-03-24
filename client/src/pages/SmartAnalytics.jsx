@@ -214,7 +214,7 @@ export default function SmartAnalytics() {
                                 <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--text-muted)', fontSize: 13, fontWeight: 600 }} />
                                 <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
                                 <Tooltip 
-                                    contentStyle={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8 }}
+                                    contentStyle={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text-primary)' }}
                                     formatter={(value, name, props) => [`${props.payload.rawSolves} Solved Problems`, 'Total Volume']}
                                 />
                                 <Radar 
@@ -345,7 +345,7 @@ export default function SmartAnalytics() {
                 .panel {
                     background: var(--bg-secondary);
                     border: 1px solid var(--border);
-                    border-radius: var(--radius-2xl);
+                    border-radius: var(--radius-xl);
                     padding: 32px;
                 }
                 .panel-title {

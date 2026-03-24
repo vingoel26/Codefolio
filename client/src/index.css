@@ -337,3 +337,41 @@ a:hover {
 .animate-pulse-glow {
   animation: pulse-glow 3s ease-in-out infinite;
 }
+
+/* =============================================
+   Graph & Tooltip Overflow Fixes
+   ============================================= */
+.recharts-tooltip-wrapper {
+  max-width: 280px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.recharts-default-tooltip {
+  max-width: 280px !important;
+  word-wrap: break-word !important;
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  color: var(--text-primary) !important;
+}
+
+.recharts-default-tooltip .recharts-tooltip-label {
+  color: var(--text-primary) !important;
+}
+
+.recharts-default-tooltip .recharts-tooltip-item {
+  color: var(--text-secondary) !important;
+}
+
+.recharts-default-tooltip .recharts-tooltip-item-name,
+.recharts-default-tooltip .recharts-tooltip-item-separator,
+.recharts-default-tooltip .recharts-tooltip-item-value {
+  color: var(--text-primary) !important;
+}
+
+.recharts-cartesian-axis-tick-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+

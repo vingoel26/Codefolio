@@ -269,7 +269,7 @@ export default function ChatInterface({ mode = 'widget' }) {
                     display: flex;
                     padding: 4px;
                     gap: 4px;
-                    background: rgba(0,0,0,0.2);
+                    background: var(--bg-tertiary);
                     border-bottom: 1px solid var(--border);
                 }
 
@@ -304,7 +304,7 @@ export default function ChatInterface({ mode = 'widget' }) {
                     flex-direction: column;
                     padding: 12px;
                     gap: 6px;
-                    background: rgba(0,0,0,0.05);
+                    background: var(--bg-tertiary);
                     overflow-y: auto;
                 }
 
@@ -327,7 +327,7 @@ export default function ChatInterface({ mode = 'widget' }) {
                     transition: all 0.2s;
                 }
 
-                .chat-channel-item:hover { background: var(--bg-hover); color: white; }
+                .chat-channel-item:hover { background: var(--bg-hover); color: var(--text-primary); }
                 .chat-channel-active { background: var(--accent-subtle); color: var(--accent); font-weight: 600; }
 
                 .chat-main { 
@@ -416,7 +416,7 @@ export default function ChatInterface({ mode = 'widget' }) {
                     border-radius: var(--radius-lg); 
                     padding: 12px 20px; 
                     font-size: 0.9375rem; 
-                    color: white; 
+                    color: var(--text-primary); 
                     outline: none;
                     transition: border-color 0.2s;
                 }
@@ -461,7 +461,7 @@ export default function ChatInterface({ mode = 'widget' }) {
                     color: var(--text-muted);
                 }
 
-                .chat-empty-state-main h3 { color: white; margin-bottom: 8px; font-size: 1.25rem; }
+                .chat-empty-state-main h3 { color: var(--text-primary); margin-bottom: 8px; font-size: 1.25rem; }
 
                 .chat-sidebar-section {
                     margin-top: 20px;

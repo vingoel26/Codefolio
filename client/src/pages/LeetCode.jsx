@@ -8,7 +8,7 @@ import {
 
 const LC = '#ffa116';
 const COLORS = { Easy: '#00b8a3', Medium: '#ffc01e', Hard: '#ef4743' };
-const tooltipStyle = { background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 };
+const tooltipStyle = { background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-primary)' };
 
 export default function LeetCode() {
     const { data, account, accounts, activeIdx, setActiveIdx, loading, error, sync, syncing } = usePlatformData('leetcode');

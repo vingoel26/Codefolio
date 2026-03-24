@@ -356,7 +356,7 @@ export default function Arena() {
                     border: 1px dashed var(--border);
                     color: var(--text-muted);
                 }
-                .empty-state h2 { color: white; margin-bottom: 8px; font-size: 1.25rem; }
+                .empty-state h2 { color: var(--text-primary); margin-bottom: 8px; font-size: 1.25rem; }
             `}</style>
         </div>
     );

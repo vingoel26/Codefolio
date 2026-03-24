@@ -195,7 +195,7 @@ function Status({ children }) {
 }
 
 const fmtVerdict = (v) => ({ OK: 'Accepted', WRONG_ANSWER: 'Wrong Answer', TIME_LIMIT_EXCEEDED: 'TLE', RUNTIME_ERROR: 'Runtime Error', COMPILATION_ERROR: 'Compile Error', MEMORY_LIMIT_EXCEEDED: 'MLE' }[v] || v.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase()));
-const tooltipStyle = { background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 };
+const tooltipStyle = { background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-primary)' };
 const LANG_COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444'];
 
 const styles = `

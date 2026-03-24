@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { Bell, Search, Brain } from 'lucide-react';
+import { Brain } from 'lucide-react';
 import { useFocusStore } from '../../stores/focusStore';
 import ThemeToggle from '../ui/ThemeToggle';
 
@@ -66,16 +66,6 @@ export default function Navbar() {
                     )}
                 </button>
 
-                {/* Search */}
-                <button className="navbar-icon-btn" aria-label="Search" title="Search (Ctrl+K)">
-                    <Search size={18} />
-                </button>
-
-                {/* Notifications */}
-                <button className="navbar-icon-btn" aria-label="Notifications" title="Notifications">
-                    <Bell size={18} />
-                    <span className="navbar-notification-dot" />
-                </button>
 
                 {/* Theme Toggle */}
                 <ThemeToggle />
@@ -142,16 +132,7 @@ export default function Navbar() {
                     border-color: var(--border-strong);
                 }
 
-                .navbar-notification-dot {
-                    position: absolute;
-                    top: 8px;
-                    right: 8px;
-                    width: 7px;
-                    height: 7px;
-                    border-radius: 50%;
-                    background: var(--error);
-                    border: 2px solid var(--bg-secondary);
-                }
+
             `}</style>
         </header>
     );

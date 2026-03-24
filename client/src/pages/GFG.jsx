@@ -6,7 +6,7 @@ import {
 
 const GFG = '#2f8d46';
 const DIFF_COLORS = { School: '#9ca3af', Basic: '#60a5fa', Easy: '#34d399', Medium: '#fbbf24', Hard: '#f87171' };
-const tooltipStyle = { background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 };
+const tooltipStyle = { background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-primary)' };
 
 export default function GFGPage() {
     const { data, account, accounts, activeIdx, setActiveIdx, loading, error, sync, syncing } = usePlatformData('gfg');

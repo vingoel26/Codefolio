@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 
 const CC = '#5b4638';
-const tooltipStyle = { background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 };
+const tooltipStyle = { background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12, color: 'var(--text-primary)' };
 
 export default function CodeChef() {
     const { data, account, accounts, activeIdx, setActiveIdx, loading, error, sync, syncing } = usePlatformData('codechef');

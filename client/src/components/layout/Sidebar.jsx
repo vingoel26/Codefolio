@@ -129,12 +129,12 @@ export default function Sidebar() {
         <aside className={`sidebar ${collapsed ? 'sidebar-collapsed' : ''}`}>
             {/* Logo */}
             <div className="sidebar-header">
-                <div className="sidebar-logo">
-                    <div className="sidebar-logo-icon">CF</div>
-                    {!collapsed && (
+                {!collapsed && (
+                    <div className="sidebar-logo">
+                        <div className="sidebar-logo-icon">CF</div>
                         <span className="sidebar-logo-text">Codefolio</span>
-                    )}
-                </div>
+                    </div>
+                )}
                 <button
                     className="sidebar-collapse-btn"
                     onClick={() => setCollapsed(!collapsed)}
@@ -215,6 +215,27 @@ export default function Sidebar() {
                 .sidebar-collapsed {
                     width: 68px;
                     min-width: 68px;
+                }
+
+                .sidebar-collapsed .sidebar-header {
+                    justify-content: center;
+                    padding: 16px 8px;
+                }
+
+                .sidebar-collapsed .sidebar-nav {
+                    padding: 12px 6px;
+                    align-items: center;
+                }
+
+                .sidebar-collapsed .sidebar-item {
+                    justify-content: center;
+                    padding: 10px;
+                    width: 44px;
+                    height: 44px;
+                }
+
+                .sidebar-collapsed .sidebar-divider {
+                    margin: 8px 4px;
                 }
 
                 .sidebar-header {

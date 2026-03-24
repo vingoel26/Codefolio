@@ -125,7 +125,9 @@ export default function Feed() {
                     </div>
                 )}
 
-                {events.map((ev) => (
+                {events
+                    .filter(ev => ['NEW_LINK_ACCOUNT', 'NEW_FOLLOW', 'RATING_UP'].includes(ev.type))
+                    .map((ev) => (
                     <FeedEvent key={ev.id} event={ev} />
                 ))}
 

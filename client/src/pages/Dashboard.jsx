@@ -229,10 +229,11 @@ function Stat({ icon: Icon, label, value, color, size }) {
 function BadgeRow({ username, type, label }) {
     const [copied, setCopied] = useState(false);
     const badgeUrl = `${API_URL}/badge/${username}/${type}`;
-    const markdown = `[![${label}](${badgeUrl})](${window.location.origin}/u/${username})`;
+    const portfolioUrl = `${window.location.origin}/u/${username}`;
+    const htmlSnippet = `<a href="${portfolioUrl}" target="_blank">\n  <img src="${badgeUrl}" alt="${label}" />\n</a>`;
 
     const copy = () => {
-        navigator.clipboard.writeText(markdown);
+        navigator.clipboard.writeText(htmlSnippet);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -243,7 +244,7 @@ function BadgeRow({ username, type, label }) {
                 <img src={badgeUrl} alt={label} height="32" />
             </div>
             <div className="badge-label">{label}</div>
-            <button className="badge-copy-btn" onClick={copy} title="Copy Markdown">
+            <button className="badge-copy-btn" onClick={copy} title="Copy HTML">
                 {copied ? <><Check size={14} /> Copied!</> : <><Copy size={14} /> Copy</>}
             </button>
         </div>

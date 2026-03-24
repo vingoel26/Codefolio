@@ -345,11 +345,12 @@ export default function SmartAnalytics() {
 
                 /* Premium Glass Panels */
                 .premium-glass-panel {
-                    background: rgba(15, 23, 42, 0.6);
+                    background: var(--glass-bg);
                     backdrop-filter: blur(20px);
-                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    border: 1px solid var(--glass-border);
                     padding: 32px;
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: var(--shadow-sm);
                 }
                 .analytics-col-sidebar .premium-glass-panel { border-bottom: 1px solid var(--border); }
                 .analytics-col-primary .premium-glass-panel { border-left: 1px solid var(--border); min-height: 100%; }
@@ -360,24 +361,15 @@ export default function SmartAnalytics() {
                 .primary-title { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
 
                 /* Radar & Legend */
-                .radar-glow-container { background: radial-gradient(circle at center, rgba(99, 102, 241, 0.1) 0%, transparent 70%); }
-                .distribution-legend-v2 { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05); }
-                .legend-item-v2 { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: rgba(255,255,255,0.03); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+                .radar-glow-container { background: radial-gradient(circle at center, var(--accent-subtle) 0%, transparent 70%); }
+                .distribution-legend-v2 { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
+                .legend-item-v2 { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: var(--bg-tertiary); padding: 4px 12px; border-radius: 8px; border: 1px solid var(--border); }
                 .legend-dot-v2 { width: 6px; height: 6px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
 
-                /* AI Side Widget */
-                .ai-chat-viewport-v2 { height: 300px; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 16px; }
-                .chat-bubble-v2 { max-width: 90%; padding: 10px 14px; border-radius: 12px; font-size: 0.8125rem; line-height: 1.5; color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.05); }
-                .row-user .chat-bubble-v2 { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-                .row-bot .chat-bubble-v2 { background: var(--bg-tertiary); border-bottom-left-radius: 2px; }
-                .chat-control-area-v2 { display: flex; gap: 8px; }
-                .chat-input-field-v2 { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.8125rem; color: var(--text-primary); outline: none; }
-                .chat-send-btn-v2 { width: 36px; height: 36px; background: var(--accent); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
-
                 /* Blindspot Banner */
-                .blindspot-banner-v2 { background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, transparent 100%); border-radius: 16px; padding: 24px; position: relative; overflow: hidden; margin-bottom: 40px; border: 1px solid rgba(239, 68, 68, 0.2); }
+                .blindspot-banner-v2 { background: var(--error-bg); border-radius: 16px; padding: 24px; position: relative; overflow: hidden; margin-bottom: 40px; border: 1px solid var(--error); border-opacity: 0.2; }
                 .banner-accent { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--error); box-shadow: 0 0 15px var(--error); }
-                .alert-icon-shell { width: 48px; height: 48px; min-width: 48px; background: rgba(239,68,68,0.2); color: var(--error); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+                .alert-icon-shell { width: 48px; height: 48px; min-width: 48px; background: var(--error-bg); color: var(--error); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
                 .pulse-red { animation: pulse-red-glow 2s infinite; }
                 @keyframes pulse-red-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 20px 0 rgba(239,68,68,0.2); } }
                 .banner-label { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.2em; color: var(--error); margin-bottom: 4px; }
@@ -392,8 +384,8 @@ export default function SmartAnalytics() {
                 .cluster-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
 
                 .mission-cards-stack { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 16px; }
-                .neural-mission-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: space-between; text-decoration: none; position: relative; }
-                .neural-mission-card:hover { transform: translateY(-4px) scale(1.02); background: rgba(255,255,255,0.05); border-color: var(--accent); box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.3); }
+                .neural-mission-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 16px; padding: 20px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: space-between; text-decoration: none; position: relative; box-shadow: var(--shadow-sm); }
+                .neural-mission-card:hover { transform: translateY(-4px) scale(1.02); background: var(--bg-hover); border-color: var(--accent); box-shadow: var(--shadow-md); }
                 
                 .mission-status-indicator { width: 4px; height: 24px; background: var(--border); border-radius: 2px; margin-right: 16px; transition: all 0.3s; }
                 .neural-mission-card:hover .mission-status-indicator { background: var(--accent); box-shadow: 0 0 10px var(--accent); height: 40px; }
@@ -402,16 +394,16 @@ export default function SmartAnalytics() {
                 .mission-id { font-family: monospace; font-weight: 800; color: var(--accent); font-size: 0.9rem; margin-right: 12px; opacity: 0.8; }
                 .mission-name { font-weight: 700; font-size: 1rem; color: var(--text-primary); }
                 .mission-meta-pills { display: flex; gap: 8px; margin-top: 6px; }
-                .rating-glow-pill { font-size: 0.75rem; font-weight: 900; background: rgba(255,255,255,0.03); padding: 2px 10px; border-radius: 6px; }
-                .difficulty-pill { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; background: rgba(255,255,255,0.02); padding: 2px 10px; border-radius: 6px; }
+                .rating-glow-pill { font-size: 0.75rem; font-weight: 900; background: var(--bg-tertiary); padding: 2px 10px; border-radius: 6px; }
+                .difficulty-pill { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; background: var(--bg-tertiary); padding: 2px 10px; border-radius: 6px; }
 
                 .mission-launch { display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateX(10px); transition: all 0.3s; }
                 .neural-mission-card:hover .mission-launch { opacity: 1; transform: translateX(0); }
                 .launch-text { font-size: 0.7rem; font-weight: 900; color: var(--accent); letter-spacing: 0.1em; }
                 .launch-icon { color: var(--accent); }
 
-                .reroll-mission-btn { display: flex; align-items: center; gap: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); padding: 8px 16px; border-radius: 12px; color: var(--text-primary); font-size: 0.8125rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-                .reroll-mission-btn:hover:not(:disabled) { background: var(--accent); color: white; border-color: var(--accent); transform: translateY(-2px); }
+                .reroll-mission-btn { display: flex; align-items: center; gap: 10px; background: var(--bg-secondary); border: 1px solid var(--border); padding: 8px 16px; border-radius: 12px; color: var(--text-primary); font-size: 0.8125rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+                .reroll-mission-btn:hover:not(:disabled) { background: var(--accent); color: white; border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
 
                 /* Rating Helpers */
                 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -430,7 +422,7 @@ export default function SmartAnalytics() {
                 .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
                 @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
                 
-                .loading-bar-tracker { width: 240px; height: 2px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+                .loading-bar-tracker { width: 240px; height: 2px; background: var(--border); border-radius: 4px; overflow: hidden; }
                 .inner-progress { height: 100%; background: var(--accent); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px var(--accent); }
             `}</style>
         </div>

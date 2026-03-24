@@ -252,6 +252,8 @@ export default function Contests() {
             <style>{`
                 .contests-page { color: var(--text-primary); background: var(--bg-primary); position: relative; height: 100vh; overflow-y: auto; }
                 .neural-bg-glow { position: fixed; top: 0; right: 0; width: 600px; height: 600px; background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%); z-index: 0; pointer-events: none; }
+                
+                :root:not(.dark) .neural-bg-glow { background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%); }
 
                 /* Hero Header */
                 .analytics-hero-header { padding: 40px 0; border-bottom: 1px solid var(--border); background: var(--bg-secondary); }
@@ -271,33 +273,33 @@ export default function Contests() {
                 .contest-grid-v2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 24px; }
                 @media (max-width: 768px) { .contest-grid-v2 { grid-template-columns: 1fr; } }
 
-                .premium-glass-panel { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 24px; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-                .contest-card-v2:hover { transform: translateY(-6px) scale(1.01); background: rgba(30, 41, 59, 0.6); border-color: rgba(99, 102, 241, 0.3); box-shadow: 0 20px 40px -20px rgba(0,0,0,0.5); }
+                .premium-glass-panel { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 24px; position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: var(--shadow-sm); }
+                .contest-card-v2:hover { transform: translateY(-6px) scale(1.01); background: var(--bg-secondary); border-color: var(--accent); box-shadow: var(--shadow-lg); }
                 
                 .card-accent-line { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; opacity: 0.6; transition: width 0.3s; }
                 .contest-card-v2:hover .card-accent-line { width: 6px; opacity: 1; }
 
                 .contest-card-inner { display: flex; padding: 28px; gap: 24px; }
-                .contest-date-sidebar { min-width: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid rgba(255,255,255,0.05); padding-right: 24px; }
+                .contest-date-sidebar { min-width: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px solid var(--border); padding-right: 24px; }
                 .c-date-v2 { font-size: 1.1rem; font-weight: 900; color: var(--text-primary); text-align: center; line-height: 1.2; }
                 .c-time-v2 { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-top: 8px; display: flex; align-items: center; gap: 6px; }
 
                 .contest-main-content { flex: 1; }
                 .platform-tag-v2 { font-size: 0.7rem; font-weight: 900; padding: 4px 12px; border-radius: 8px; letter-spacing: 0.1em; display: inline-block; }
-                .contest-title-v2 { font-size: 1.4rem; font-weight: 800; line-height: 1.3; margin: 12px 0 20px 0; }
+                .contest-title-v2 { font-size: 1.4rem; font-weight: 800; line-height: 1.3; margin: 12px 0 20px 0; color: var(--text-primary); }
                 
-                .contest-footer-v2 { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); }
+                .contest-footer-v2 { display: flex; justify-content: space-between; align-items: center; padding-top: 20px; border-top: 1px solid var(--border); }
                 .meta-item-v2 { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
                 
                 .participate-link-v2 { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 900; color: var(--accent); letter-spacing: 0.1em; text-decoration: none; transition: all 0.2s; }
-                .participate-link-v2:hover { color: white; transform: translateX(4px); }
+                .participate-link-v2:hover { color: var(--text-primary); transform: translateX(4px); }
 
-                .action-btn-v2 { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.3s; cursor: pointer; }
-                .action-btn-v2:hover { background: rgba(255,255,255,0.1); color: white; border-color: var(--accent); }
+                .action-btn-v2 { width: 40px; height: 40px; border-radius: 12px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-muted); display: flex; align-items: center; justify-content: center; transition: all 0.3s; cursor: pointer; }
+                .action-btn-v2:hover { background: var(--accent); color: white; border-color: var(--accent); }
                 .active-reminder { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
 
                 /* Anim */
-                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
                 .animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
             `}</style>
         </div>

@@ -20,7 +20,7 @@ const FeedEvent = ({ event }) => {
         color = 'var(--accent)';
         content = (
             <p className="feed-text">
-                Linked their <strong>{metadata.platform}</strong> account (<code>{metadata.handle}</code>)
+                Linked their <span className="feed-highlight">{metadata.platform}</span> account (<code className="feed-code">{metadata.handle}</code>)
             </p>
         );
     } else if (type === 'NEW_FOLLOW') {
@@ -36,7 +36,7 @@ const FeedEvent = ({ event }) => {
         color = '#ffa116';
         content = (
             <p className="feed-text">
-                Rating increased to <strong>{metadata.newRating}</strong> on {metadata.platform}!
+                Rating increased to <span className="feed-highlight-alt">{metadata.newRating}</span> on <span className="feed-highlight">{metadata.platform}</span>!
             </p>
         );
     } else {
@@ -45,7 +45,11 @@ const FeedEvent = ({ event }) => {
 
     return (
         <div className="feed-card glass-card">
-            <div className="feed-icon-col" style={{ color }}>{icon}</div>
+            <div className="feed-icon-col" style={{ color }}>
+                <div className="feed-icon-wrapper" style={{ backgroundColor: `${color}15` }}>
+                    {icon}
+                </div>
+            </div>
             <div className="feed-content-col">
                 <div className="feed-header">
                     <Link to={`/u/${user.username || ''}`} className="feed-user-link">
@@ -54,8 +58,10 @@ const FeedEvent = ({ event }) => {
                             alt={user.username} 
                             className="feed-avatar"
                         />
-                        <span className="feed-display-name">{user.displayName || user.username}</span>
-                        <span className="feed-username">@{user.username}</span>
+                        <div className="feed-user-info">
+                            <span className="feed-display-name">{user.displayName || user.username}</span>
+                            <span className="feed-username">@{user.username}</span>
+                        </div>
                     </Link>
                     <span className="feed-time">{timeAgo}</span>
                 </div>
@@ -148,24 +154,27 @@ export default function Feed() {
                 .feed-card { display:flex; gap:16px; padding:20px; border-radius:var(--radius-lg); transition:transform var(--transition-fast); }
                 .feed-card:hover { transform:translateY(-2px); }
                 
-                .feed-icon-col { padding-top:4px; }
+                .feed-icon-col { padding-top:2px; }
+                .feed-icon-wrapper { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; }
                 
                 .feed-content-col { flex:1; }
-                .feed-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-                .feed-user-link { display:flex; align-items:center; gap:8px; text-decoration:none; color:inherit; }
+                .feed-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+                .feed-user-link { display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit; }
                 .feed-user-link:hover .feed-display-name { text-decoration:underline; }
+                .feed-user-info { display:flex; flex-direction:column; }
                 
-                .feed-avatar { width:24px; height:24px; border-radius:50%; background:var(--bg-tertiary); }
-                .feed-display-name { font-weight:700; font-size:0.95rem; }
-                .feed-username { color:var(--text-muted); font-size:0.85rem; }
+                .feed-avatar { width:32px; height:32px; border-radius:var(--radius-md); background:var(--bg-tertiary); }
+                .feed-display-name { font-weight:700; font-size:0.95rem; line-height:1.2; }
+                .feed-username { color:var(--text-muted); font-size:0.8rem; }
                 
-                .feed-time { font-size:0.8rem; color:var(--text-muted); }
+                .feed-time { font-size:0.75rem; color:var(--text-muted); font-weight:500; }
                 
-                .feed-text { font-size:0.95rem; color:var(--text-secondary); line-height:1.5; }
-                .feed-text strong { color:var(--text-primary); }
-                .feed-text code { font-family:var(--font-mono); font-size:0.85em; background:var(--bg-tertiary); padding:2px 6px; border-radius:4px; }
-                .feed-link { color:var(--accent); text-decoration:none; font-weight:500; }
-                .feed-link:hover { text-decoration:underline; }
+                .feed-text { font-size:1rem; color:var(--text-secondary); line-height:1.5; }
+                .feed-highlight { color:var(--text-primary); font-weight:800; text-transform:uppercase; font-size:0.85rem; letter-spacing:0.02em; }
+                .feed-highlight-alt { color: #ffa116; font-weight:800; font-size:1.1rem; }
+                .feed-code { font-family:var(--font-mono); font-size:0.9em; background:var(--bg-tertiary); padding:2px 8px; border-radius:4px; color:var(--accent); font-weight:600; }
+                .feed-link { color:var(--accent); text-decoration:none; font-weight:700; border-bottom:1px dashed var(--accent); }
+                .feed-link:hover { border-bottom-style:solid; }
                 
                 .feed-empty { padding:48px 24px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px; color:var(--text-muted); }
                 .feed-empty h3 { color:var(--text-primary); font-size:1.2rem; }

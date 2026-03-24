@@ -43,7 +43,7 @@ export const initSocket = (server) => {
         const userId = socket.user.id;
         const username = socket.user.username;
 
-        console.log(`[Socket] User connected: ${username} (${userId}) | Socket: ${socket.id}`);
+
 
         // Track presence
         if (!onlineUsers.has(userId)) {
@@ -59,7 +59,7 @@ export const initSocket = (server) => {
 
         // Standard handlers
         socket.on('disconnect', () => {
-            console.log(`[Socket] User disconnected: ${username} | Socket: ${socket.id}`);
+
 
             const userSockets = onlineUsers.get(userId);
             if (userSockets) {

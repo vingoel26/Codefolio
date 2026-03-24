@@ -19,7 +19,7 @@ export const registerChatHandlers = (io, socket) => {
 
             // Join the socket.io room
             socket.join(conversation.id);
-            console.log(`[Socket] ${socket.user.username} joined room: ${conversation.slug || conversation.id}`);
+
 
             // Fetch last 50 messages
             const messages = await prisma.message.findMany({
@@ -66,7 +66,7 @@ export const registerChatHandlers = (io, socket) => {
     // ── Leave a room ──
     socket.on('chat:leave', ({ conversationId }) => {
         socket.leave(conversationId);
-        console.log(`[Socket] ${socket.user.username} left room: ${conversationId}`);
+
     });
 
     // ── Get/List DM Conversations ──

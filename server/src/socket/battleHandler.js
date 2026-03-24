@@ -92,7 +92,7 @@ export const registerBattleHandlers = (io, socket) => {
 };
 
 async function startMatch(matchId, io) {
-    console.log(`[Battle] Starting Match ${matchId}`);
+
 
     // Update match to IN_PROGRESS
     const match = await prisma.battleMatch.update({
@@ -169,7 +169,7 @@ async function pollMatchStatus(match, handles, io, intervalTimer) {
 }
 
 async function declareWinner(matchId, winnerId, io, intervalTimer) {
-    console.log(`[Battle] Match ${matchId} won by user ${winnerId}`);
+
 
     // Stop polling
     clearInterval(intervalTimer);

@@ -41,8 +41,6 @@ export default function Settings() {
         { id: 'profile', label: 'Profile', icon: User },
         { id: 'portfolio', label: 'Portfolio', icon: LayoutTemplate },
         { id: 'appearance', label: 'Appearance', icon: Palette },
-        { id: 'notifications', label: 'Notifications', icon: Bell },
-        { id: 'data', label: 'Data & Export', icon: Database },
     ];
 
     return (
@@ -253,28 +251,6 @@ export default function Settings() {
                                         ))}
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'notifications' && (
-                        <div className="settings-section animate-fade-in">
-                            <h2 className="settings-section-title">Notifications</h2>
-                            <p className="settings-section-desc">Configure notification preferences.</p>
-                            <div className="settings-placeholder">
-                                <Bell size={48} strokeWidth={1} style={{ color: 'var(--text-muted)', opacity: 0.3 }} />
-                                <p>Notification settings coming in Phase 2</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'data' && (
-                        <div className="settings-section animate-fade-in">
-                            <h2 className="settings-section-title">Data & Export</h2>
-                            <p className="settings-section-desc">Export your data or manage storage.</p>
-                            <div className="settings-placeholder">
-                                <Database size={48} strokeWidth={1} style={{ color: 'var(--text-muted)', opacity: 0.3 }} />
-                                <p>Data export coming in Phase 2</p>
                             </div>
                         </div>
                     )}

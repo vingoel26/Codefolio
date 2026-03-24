@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import FocusTimerWidget from '../widgets/FocusTimerWidget';
@@ -9,12 +9,15 @@ import ChatPanel from '../widgets/ChatPanel';
  * The <Outlet /> renders the matched child route.
  */
 export default function Layout() {
+    const location = useLocation();
+    const isFullBleed = ['/chat', '/analytics', '/coach'].includes(location.pathname);
+
     return (
         <div className="app-layout">
             <Sidebar />
             <div className="app-main">
                 <Navbar />
-                <main className="app-content">
+                <main className={`app-content ${isFullBleed ? 'no-padding' : ''}`}>
                     <Outlet />
                 </main>
             </div>
@@ -41,6 +44,11 @@ export default function Layout() {
                     flex: 1;
                     padding: 24px 32px;
                     overflow-y: auto;
+                }
+
+                .app-content.no-padding {
+                    padding: 0;
+                    overflow: hidden;
                 }
             `}</style>
         </div>

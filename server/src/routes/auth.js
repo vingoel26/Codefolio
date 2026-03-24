@@ -200,14 +200,14 @@ router.get(
 // POST /api/auth/refresh — refresh access token manually
 router.post('/refresh', async (req, res) => {
     const token = req.body?.refreshToken;
-    console.log('[Auth] /refresh hit. Token present in body:', !!token);
+
 
     if (!token) {
         return res.status(401).json({ error: 'No refresh token' });
     }
 
     const user = await verifyRefreshToken(token);
-    console.log('[Auth] Token verified in DB:', !!user);
+
 
     if (!user) {
         return res.status(401).json({ error: 'Invalid or expired refresh token' });

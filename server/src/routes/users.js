@@ -151,7 +151,7 @@ router.use(requireAuth);
 
 // POST /api/users/u/:username/follow
 router.post('/u/:username/follow', async (req, res) => {
-    console.log(`[FOLLOW] User ${req.user.username} (ID: ${req.user.id}) attempting to follow ${req.params.username}`);
+
     try {
         const { username } = req.params;
         const targetUser = await prisma.user.findUnique({ where: { username } });
@@ -188,7 +188,7 @@ router.post('/u/:username/follow', async (req, res) => {
 
 // DELETE /api/users/u/:username/follow
 router.delete('/u/:username/follow', async (req, res) => {
-    console.log(`[UNFOLLOW] User ${req.user.username} (ID: ${req.user.id}) attempting to unfollow ${req.params.username}`);
+
     try {
         const { username } = req.params;
         const targetUser = await prisma.user.findUnique({ where: { username } });

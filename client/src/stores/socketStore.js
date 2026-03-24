@@ -38,19 +38,19 @@ export const useSocketStore = create((set, get) => ({
         const { socket: existingSocket } = get();
         if (existingSocket?.connected) return;
 
-        console.log('[Socket] Connecting...');
+
         const socket = io(SOCKET_URL, {
             auth: { token },
             reconnectionAttempts: 5,
         });
 
         socket.on('connect', () => {
-            console.log('[Socket] Connected with ID:', socket.id);
+
             set({ isConnected: true });
         });
 
         socket.on('disconnect', () => {
-            console.log('[Socket] Disconnected');
+
             set({ isConnected: false });
         });
 
@@ -61,14 +61,14 @@ export const useSocketStore = create((set, get) => ({
 
         // Presence listeners
         socket.on('user:online', ({ userId, username }) => {
-            console.log(`[Socket] Peer Online: ${username}`);
+
             set((state) => ({
                 onlineUsers: [...new Set([...state.onlineUsers, userId])]
             }));
         });
 
         socket.on('user:offline', ({ userId, username }) => {
-            console.log(`[Socket] Peer Offline: ${username}`);
+
             set((state) => ({
                 onlineUsers: state.onlineUsers.filter(id => id !== userId)
             }));
@@ -76,7 +76,7 @@ export const useSocketStore = create((set, get) => ({
 
         // Chat listeners
         socket.on('chat:history', ({ conversationId, messages }) => {
-            console.log(`[Socket] Loaded history for ${conversationId}`);
+
             set((state) => ({
                 activeConversation: {
                     ...state.activeConversation,
@@ -117,7 +117,7 @@ export const useSocketStore = create((set, get) => ({
         });
 
         socket.on('chat:private:ready', ({ conversationId, peer }) => {
-            console.log(`[Socket] Private conversation ready: ${conversationId}`);
+
             set({
                 activeConversation: {
                     id: conversationId,
@@ -133,7 +133,7 @@ export const useSocketStore = create((set, get) => ({
         });
 
         socket.on('chat:private:friends', (list) => {
-            console.log(`[Socket] Received ${list.length} friends`);
+
             set({ friends: list });
         });
 

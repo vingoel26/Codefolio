@@ -27,7 +27,7 @@ export async function syncAccount(accountId) {
     const fetcher = fetchers[account.platform];
     if (!fetcher) throw new Error(`No fetcher for platform: ${account.platform}`);
 
-    console.log(`[Sync] Fetching ${account.platform}/${account.handle}...`);
+
 
     try {
         const data = await fetcher(account.handle);
@@ -40,7 +40,7 @@ export async function syncAccount(accountId) {
             },
         });
 
-        console.log(`[Sync] ✓ ${account.platform}/${account.handle} synced`);
+
         return { success: true, platform: account.platform, handle: account.handle };
     } catch (err) {
         console.error(`[Sync] ✗ ${account.platform}/${account.handle}: ${err.message}`);
@@ -56,7 +56,7 @@ export async function syncUserAccounts(userId) {
         where: { userId },
     });
 
-    console.log(`[Sync] Syncing ${accounts.length} accounts for user ${userId}`);
+
 
     const results = [];
     for (const account of accounts) {
@@ -90,11 +90,11 @@ export async function syncStaleAccounts(staleMins = 360) {
     });
 
     if (staleAccounts.length === 0) {
-        console.log('[Cron] No stale accounts to sync');
+
         return [];
     }
 
-    console.log(`[Cron] Found ${staleAccounts.length} stale accounts, syncing...`);
+
 
     const results = [];
     for (const account of staleAccounts) {
@@ -104,7 +104,7 @@ export async function syncStaleAccounts(staleMins = 360) {
     }
 
     const successCount = results.filter((r) => r.success).length;
-    console.log(`[Cron] Sync complete: ${successCount}/${results.length} succeeded`);
+
 
     return results;
 }

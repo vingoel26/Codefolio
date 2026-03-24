@@ -10,7 +10,7 @@ export default function ChatPage() {
             <style>{`
                 .chat-page-wrapper {
                     height: calc(100vh - 40px);
-                    padding: 20px;
+                    padding: 0;
                     display: flex;
                     flex-direction: column;
                 }
@@ -18,10 +18,8 @@ export default function ChatPage() {
                 .chat-page-container {
                     flex: 1;
                     min-height: 0;
-                    box-shadow: var(--shadow-xl);
-                    border-radius: var(--radius-xl);
                     overflow: hidden;
-                    background: var(--bg-secondary);
+                    background: var(--bg-primary);
                 }
             `}</style>
         </div>

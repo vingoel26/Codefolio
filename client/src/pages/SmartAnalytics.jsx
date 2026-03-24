@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Target, Loader2, RefreshCw, AlertCircle, ExternalLink, PlayCircle, MessageSquare, Send } from 'lucide-react';
+import { Target, Loader2, RefreshCw, AlertCircle, ExternalLink, PlayCircle, MessageSquare, Send, Brain } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { 
     Radar, 
@@ -25,11 +25,29 @@ export default function SmartAnalytics() {
     const [weakestCategories, setWeakestCategories] = useState([]);
     const [bootcampProblems, setBootcampProblems] = useState({}); // { category: [problems] }
     const [bootcampLoading, setBootcampLoading] = useState(false);
+    const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
-    // AI Coach state
-    const [aiMessages, setAiMessages] = useState([]);
-    const [aiInput, setAiInput] = useState('');
-    const [isAiLoading, setIsAiLoading] = useState(false);
+    const loadingMessages = [
+        "Initializing Neural Link...",
+        "Scanning Codeforces Identifiers...",
+        "Identifying Algorithmic Blindspots...",
+        "Quantizing Pattern Density...",
+        "Generating Personalized Missions...",
+        "Syncing with Hellen Logic Mentor...",
+        "Optimizing Training Load..."
+    ];
+
+    useEffect(() => {
+        let interval;
+        if (bootcampLoading) {
+            interval = setInterval(() => {
+                setLoadingMessageIndex(prev => (prev + 1) % loadingMessages.length);
+            }, 1800);
+        } else {
+            setLoadingMessageIndex(0);
+        }
+        return () => clearInterval(interval);
+    }, [bootcampLoading]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,25 +65,16 @@ export default function SmartAnalytics() {
                     if (primaryCF) {
                         setLinkedCF(primaryCF);
                         
-                        // Parse tag distribution logic
                         const tags = primaryCF.data?.tagDistribution || {};
                         const chartData = aggregateToMacroCategories(tags);
                         setRadarData(chartData);
 
-                        // Identify weakest domains (bottom 2 that have > 0 total activity overall)
+
                         if (chartData.length > 0) {
                             const sorted = [...chartData].sort((a, b) => a.normalized - b.normalized);
                             const bottom2 = sorted.slice(0, 2);
                             setWeakestCategories(bottom2);
                             generateBootcamp(bottom2, primaryCF.data?.profile?.rating || 1200);
-
-                            // Send initial transparent payload to AI to get greeting
-                            sendAiMessage("Hello! Please introduce yourself and give me a 2-sentence summary of my Codeforces skill distribution and what my biggest algorithmic weakness seems to be.", {
-                                rating: primaryCF.data?.profile?.rating,
-                                totalSolves: chartData.reduce((acc, c) => acc + c.rawSolves, 0),
-                                weakestCategory: bottom2[0]?.fullSubject,
-                                macroScores: primaryCF.data?.tagDistribution
-                            }, true);
                         }
                     }
                 }
@@ -133,47 +142,6 @@ export default function SmartAnalytics() {
         }
     };
 
-    const sendAiMessage = async (textOverride = null, stats = null, isGreeting = false) => {
-        const text = textOverride || aiInput;
-        if (!text.trim()) return;
-
-        if (!isGreeting) {
-            setAiMessages(prev => [...prev, { role: 'user', content: text }]);
-            setAiInput('');
-        }
-        setIsAiLoading(true);
-
-        try {
-            const res = await fetch(`${API_URL}/ai/coach`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user?.token || useAuthStore.getState().accessToken}`
-                },
-                body: JSON.stringify({
-                    message: text,
-                    history: isGreeting ? [] : aiMessages,
-                    cfStats: stats || {
-                        rating: linkedCF?.data?.profile?.rating,
-                        totalSolves: radarData.reduce((acc, c) => acc + c.rawSolves, 0),
-                        weakestCategory: weakestCategories[0]?.fullSubject,
-                        macroScores: linkedCF?.data?.tagDistribution
-                    }
-                })
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                setAiMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
-            } else {
-                setAiMessages(prev => [...prev, { role: 'assistant', content: "I'm sorry, I couldn't reach the backend server to process that."}]);
-            }
-        } catch (e) {
-            setAiMessages(prev => [...prev, { role: 'assistant', content: "An error occurred connecting to the Gemini API."}]);
-        } finally {
-            setIsAiLoading(false);
-        }
-    };
 
     if (loading) {
         return <div className="flex-center h-screen"><Loader2 size={40} className="spin text-accent" /></div>;
@@ -193,331 +161,289 @@ export default function SmartAnalytics() {
     }
 
     return (
-        <div className="analytics-page p-8 max-w-[1400px] mx-auto">
-            <header className="mb-10">
-                <h1 className="text-3xl font-bold flex items-center gap-3">
-                    <Target size={32} className="text-accent" /> Algorithmic Blind-Spot Detector
-                </h1>
-                <p className="text-muted mt-2 text-lg">
-                    Analyzing pattern recognition across {radarData.reduce((acc, r) => acc + (r.rawSolves || 0), 0)} Codeforces algorithmic tags.
-                </p>
+        <div className="analytics-page min-h-screen">
+            <header className="analytics-hero-header glass-header animate-fade-in">
+                <div className="hero-content-wrapper">
+                    <div className="flex items-center gap-6 mb-4">
+                        <div className="analytics-logo-orb-v2">
+                            <Target size={32} className="text-white" />
+                        </div>
+                        <div className="hero-text-stack">
+                            <h1 className="hero-main-title">
+                                Neural Skill Matrix
+                            </h1>
+                            <p className="hero-sub-title">
+                                Pattern recognition mapping {radarData.reduce((acc, r) => acc + (r.rawSolves || 0), 0)} algorithmic identifiers.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </header>
 
-            <div className="analytics-grid">
-                {/* Radar Chart Section */}
-                <div className="panel chart-panel">
-                    <h2 className="panel-title">Skill Projection Map</h2>
-                    <div className="radar-container" style={{ height: 450 }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
-                                <PolarGrid stroke="var(--border)" />
-                                <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--text-muted)', fontSize: 13, fontWeight: 600 }} />
-                                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                                <Tooltip 
-                                    contentStyle={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text-primary)' }}
-                                    formatter={(value, name, props) => [`${props.payload.rawSolves} Solved Problems`, 'Total Volume']}
-                                />
-                                <Radar 
-                                    name="Skills" 
-                                    dataKey="normalized" 
-                                    stroke="var(--accent)" 
-                                    fill="var(--accent)" 
-                                    fillOpacity={0.4} 
-                                    isAnimationActive={true}
-                                />
-                            </RadarChart>
-                        </ResponsiveContainer>
-                    </div>
+            <div className="analytics-matrix-grid">
+                {/* Secondary Column: Insights & AI */}
+                <div className="analytics-col-sidebar space-y-6">
+                    <section className="premium-glass-panel map-panel">
+                        <div className="panel-header-v2">
+                            <h2 className="panel-label-v2">Skill Projection</h2>
+                            <p className="panel-sublabel-v2">Active Density Map</p>
+                        </div>
+                        
+                        <div className="radar-glow-container" style={{ height: 380 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarData}>
+                                    <PolarGrid stroke="var(--border)" strokeDasharray="3 3" opacity={0.5} />
+                                    <PolarAngleAxis 
+                                        dataKey="subject" 
+                                        tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700 }} 
+                                    />
+                                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                                    <Radar 
+                                        name="Skills" 
+                                        dataKey="normalized" 
+                                        stroke="var(--accent)" 
+                                        fill="var(--accent)" 
+                                        fillOpacity={0.3} 
+                                        isAnimationActive={true}
+                                        animationDuration={1500}
+                                    />
+                                </RadarChart>
+                            </ResponsiveContainer>
+                        </div>
+
+                        <div className="distribution-legend-v2">
+                            {radarData.map((d, i) => (
+                                <div key={i} className="legend-item-v2">
+                                    <span className="legend-dot-v2" style={{ background: `hsl(${220 + i * 20}, 70%, 50%)` }} />
+                                    <span className="legend-name-v2">{d.subject}</span>
+                                    <span className="legend-value-v2">{d.rawSolves}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
                 </div>
 
-                {/* Bootcamp Section */}
-                <div className="panel bootcamp-panel">
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="panel-title mb-0">Personalized Bootcamp</h2>
-                        <button 
-                            className="btn-secondary btn-sm"
-                            onClick={() => generateBootcamp(weakestCategories, linkedCF.data?.profile?.rating || 1200)}
-                            disabled={bootcampLoading}
-                        >
-                            <RefreshCw size={14} className={`mr-2 ${bootcampLoading ? 'spin' : ''}`} /> Reroll
-                        </button>
-                    </div>
-                    
-                    {weakestCategories.length > 0 && (
-                        <div className="weakness-banner mb-6">
-                            <AlertCircle size={24} className="text-warning flex-shrink-0" />
+                {/* Primary Column: Training & Actions */}
+                <div className="analytics-col-primary space-y-6">
+                    <section className="premium-glass-panel training-ops-v2">
+                        <div className="panel-header-v2 mb-6 flex justify-between items-center">
                             <div>
-                                <strong>Critical Blind Spots Detected:</strong> You are unusually weak in <span className="text-warning font-bold">{weakestCategories[0].fullSubject}</span> compared to your overall distribution.
+                                <h1 className="primary-title">Training Ops: Level Up</h1>
+                                <p className="panel-sublabel-v2">Personalized Algorithmic Mission Training</p>
                             </div>
-                        </div>
-                    )}
-
-                    {bootcampLoading ? (
-                        <div className="flex-center py-20"><Loader2 className="spin text-accent" /></div>
-                    ) : (
-                        <div className="bootcamp-lists">
-                            {weakestCategories.map((cat, i) => (
-                                <div key={i} className="bootcamp-category-block">
-                                    <h3 className="category-header">
-                                        Focus Area {i+1}: <span>{cat.fullSubject}</span>
-                                    </h3>
-                                    <div className="problem-list">
-                                        {(bootcampProblems[cat.fullSubject] || []).map(prob => (
-                                            <a 
-                                                key={`${prob.contestId}-${prob.index}`} 
-                                                href={`https://codeforces.com/contest/${prob.contestId}/problem/${prob.index}`}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="bootcamp-problem-card"
-                                            >
-                                                <div className="prob-icon"><PlayCircle size={18} /></div>
-                                                <div className="prob-details">
-                                                    <h4>{prob.name}</h4>
-                                                    <span className="prob-id">CF {prob.contestId}-{prob.index}</span>
-                                                </div>
-                                                <div className="prob-rating">★ {prob.rating}</div>
-                                                <ExternalLink size={16} className="text-muted ml-3 opacity-50 group-hover:opacity-100 transition" />
-                                            </a>
-                                        ))}
-                                        {!(bootcampProblems[cat.fullSubject] || []).length && (
-                                            <div className="p-4 text-center text-muted italic">No problems found for this criteria.</div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* AI Coach Section */}
-                <div className="panel coach-panel lg:col-span-2">
-                    <div className="flex items-center gap-3 mb-6">
-                        <MessageSquare size={24} className="text-accent" />
-                        <h2 className="panel-title mb-0">AI Coach</h2>
-                    </div>
-                    
-                    <div className="ai-chat-container">
-                        <div className="ai-messages">
-                            {aiMessages.map((msg, i) => (
-                                <div key={i} className={`ai-message ${msg.role === 'user' ? 'msg-user' : 'msg-bot'}`}>
-                                    <div className="msg-bubble">
-                                        {msg.content.split('\n').map((line, j) => (
-                                            <span key={j}>{line}<br/></span>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                            {isAiLoading && (
-                                <div className="ai-message msg-bot">
-                                    <div className="msg-bubble loading-bubble">
-                                        <Loader2 size={16} className="spin" /> Analyzing your stats...
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        <div className="ai-input-area">
-                            <input
-                                type="text"
-                                value={aiInput}
-                                onChange={e => setAiInput(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && sendAiMessage()}
-                                placeholder="Ask your AI coach how to improve or what to study next..."
-                                className="ai-text-input"
-                            />
-                            <button className="btn-primary" onClick={() => sendAiMessage()} disabled={isAiLoading || !aiInput.trim()}>
-                                <Send size={18} />
+                            <button 
+                                className="reroll-mission-btn"
+                                onClick={() => generateBootcamp(weakestCategories, linkedCF.data?.profile?.rating || 1200)}
+                                disabled={bootcampLoading}
+                            >
+                                <RefreshCw size={18} className={bootcampLoading ? 'spin' : ''} />
+                                <span>Re-Sync Missions</span>
                             </button>
                         </div>
-                    </div>
+
+                        {weakestCategories.length > 0 && (
+                            <div className="blindspot-banner-v2">
+                                <div className="banner-accent" />
+                                <div className="flex items-center gap-4">
+                                    <div className="alert-icon-shell pulse-red">
+                                        <AlertCircle size={22} />
+                                    </div>
+                                    <div className="banner-content">
+                                        <h4 className="banner-label">CRITICAL BLINDSPOT DETECTED</h4>
+                                        <h3 className="banner-title">{weakestCategories[0].fullSubject}</h3>
+                                        <p className="banner-text">Performance density is {Math.round(100 - weakestCategories[0].normalized)}% below neural baseline. Corrective exercises prioritized.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {bootcampLoading ? (
+                            <div className="flex flex-col items-center justify-center py-40 animate-fade-in w-full">
+                                <div className="neural-loader-ring">
+                                    <div className="ring-inner pulse-accent" />
+                                    <Brain size={40} className="text-accent animate-pulse" />
+                                </div>
+                                <div className="mt-10 h-6 overflow-hidden flex justify-center w-full">
+                                    <p className="loading-message-text animate-slide-up whitespace-nowrap">
+                                        {loadingMessages[loadingMessageIndex]}
+                                    </p>
+                                </div>
+                                <div className="loading-bar-tracker mt-6">
+                                    <div className="inner-progress" style={{ width: `${(loadingMessageIndex + 1) * 14}%` }} />
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="mission-grid-v2">
+                                {weakestCategories.map((cat, i) => (
+                                    <div key={i} className="mission-cluster">
+                                        <div className="cluster-header">
+                                            <div className="cluster-id-pill">0{i+1}</div>
+                                            <h3 className="cluster-title">{cat.fullSubject}</h3>
+                                            <div className="cluster-line" />
+                                        </div>
+                                        <div className="mission-cards-stack">
+                                            {(bootcampProblems[cat.fullSubject] || []).map(prob => (
+                                                <a 
+                                                    key={`${prob.contestId}-${prob.index}`} 
+                                                    href={`https://codeforces.com/contest/${prob.contestId}/problem/${prob.index}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="neural-mission-card group"
+                                                >
+                                                    <div className="mission-card-content">
+                                                        <div className="mission-status-indicator" />
+                                                        <div className="mission-info-block">
+                                                            <div className="mission-top-line">
+                                                                <span className="mission-id">{prob.contestId}{prob.index}</span>
+                                                                <span className="mission-name">{prob.name}</span>
+                                                            </div>
+                                                            <div className="mission-meta-pills">
+                                                                <span className="rating-glow-pill" style={{ color: getRatingColor(prob.rating) }}>
+                                                                    ◈ {prob.rating}
+                                                                </span>
+                                                                <span className="difficulty-pill">LEVEL 0{Math.floor(prob.rating / 400)}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="mission-launch">
+                                                        <span className="launch-text">INITIATE</span>
+                                                        <PlayCircle size={18} className="launch-icon" />
+                                                    </div>
+                                                </a>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </section>
                 </div>
             </div>
 
             <style>{`
-                .analytics-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1.25fr;
-                    gap: 32px;
-                    align-items: start;
-                }
-                @media (max-width: 1024px) {
-                    .analytics-grid { grid-template-columns: 1fr; }
-                }
-                .panel {
-                    background: var(--bg-secondary);
-                    border: 1px solid var(--border);
-                    border-radius: var(--radius-xl);
-                    padding: 32px;
-                }
-                .panel-title {
-                    font-size: 1.25rem;
-                    font-weight: 800;
-                    margin-bottom: 24px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.05em;
-                }
-                .weakness-banner {
-                    display: flex;
-                    align-items: center;
-                    gap: 16px;
-                    background: rgba(245, 158, 11, 0.1);
-                    border: 1px solid rgba(245, 158, 11, 0.2);
-                    padding: 16px 20px;
-                    border-radius: var(--radius-lg);
-                    color: var(--text-primary);
-                }
-                .bootcamp-category-block {
-                    margin-bottom: 32px;
-                }
-                .bootcamp-category-block:last-child {
-                    margin-bottom: 0;
-                }
-                .category-header {
-                    font-size: 0.875rem;
-                    text-transform: uppercase;
-                    letter-spacing: 0.1em;
-                    color: var(--text-muted);
-                    font-weight: 700;
-                    margin-bottom: 16px;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-                .category-header span {
-                    color: var(--warning);
-                    font-size: 1rem;
-                }
-                .problem-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                }
-                .bootcamp-problem-card {
-                    display: flex;
-                    align-items: center;
-                    background: var(--bg-primary);
-                    border: 1px solid var(--border);
-                    padding: 16px;
-                    border-radius: var(--radius-lg);
-                    transition: all 0.2s;
-                    text-decoration: none;
-                    color: inherit;
-                    group: hover;
-                }
-                .bootcamp-problem-card:hover {
-                    border-color: var(--accent);
-                    background: var(--bg-tertiary);
-                    transform: translateX(4px);
-                }
-                .prob-icon {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    background: rgba(59, 130, 246, 0.1);
-                    color: var(--accent);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-right: 16px;
-                }
-                .prob-details {
-                    flex: 1;
-                }
-                .prob-details h4 {
-                    font-weight: 600;
-                    margin-bottom: 4px;
-                }
-                .prob-id {
-                    font-size: 0.75rem;
-                    color: var(--text-muted);
-                    background: var(--bg-secondary);
-                    padding: 2px 6px;
-                    border-radius: 4px;
-                }
-                .prob-rating {
-                    font-weight: 800;
-                    color: var(--warning);
-                    background: rgba(245, 158, 11, 0.1);
-                    padding: 4px 10px;
-                    border-radius: var(--radius-full);
-                    font-size: 0.875rem;
-                }
+                .analytics-page { color: var(--text-primary); background: var(--bg-primary); }
                 
-                .coach-panel {
-                    margin-top: 0;
+                /* Responsive Asymmetric Grid */
+                .analytics-matrix-grid {
+                    display: grid;
+                    grid-template-columns: 450px 1fr;
+                    min-height: calc(100vh - 80px); /* header offset */
                 }
-                .ai-chat-container {
-                    display: flex;
-                    flex-direction: column;
-                    background: var(--bg-primary);
-                    border: 1px solid var(--border);
-                    border-radius: var(--radius-lg);
-                    height: 600px;
-                    overflow: hidden;
-                }
-                .ai-messages {
-                    flex: 1;
-                    overflow-y: auto;
-                    padding: 24px;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                }
-                .ai-message {
-                    display: flex;
-                    width: 100%;
-                }
-                .msg-user {
-                    justify-content: flex-end;
-                }
-                .msg-bot {
-                    justify-content: flex-start;
-                }
-                .msg-bubble {
-                    max-width: 80%;
-                    padding: 12px 16px;
-                    border-radius: var(--radius-lg);
-                    font-size: 0.9375rem;
-                    line-height: 1.5;
-                }
-                .msg-user .msg-bubble {
-                    background: var(--accent);
-                    color: white;
-                    border-bottom-right-radius: 4px;
-                }
-                .msg-bot .msg-bubble {
-                    background: var(--bg-tertiary);
-                    color: var(--text-primary);
-                    border: 1px solid var(--border);
-                    border-bottom-left-radius: 4px;
-                }
-                .loading-bubble {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    color: var(--text-muted) !important;
-                    font-style: italic;
-                }
-                .ai-input-area {
-                    display: flex;
-                    padding: 16px;
-                    border-top: 1px solid var(--border);
+                @media (max-width: 1440px) { .analytics-matrix-grid { grid-template-columns: 400px 1fr; } }
+                @media (max-width: 1200px) { .analytics-matrix-grid { grid-template-columns: 1fr; } }
+
+                /* Full-Bleed Hero Header */
+                .analytics-hero-header {
                     background: var(--bg-secondary);
-                    gap: 12px;
+                    border-bottom: 1px solid var(--border);
+                    padding: 32px 40px;
                 }
-                .ai-text-input {
-                    flex: 1;
-                    background: var(--bg-primary);
-                    border: 1px solid var(--border);
-                    border-radius: var(--radius-md);
-                    padding: 10px 16px;
-                    color: var(--text-primary);
-                    font-size: 0.9375rem;
+                .hero-main-title { font-size: 2.25rem; font-weight: 900; letter-spacing: -0.02em; background: linear-gradient(135deg, var(--accent) 0%, var(--info) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+                .hero-sub-title { color: var(--text-muted); font-size: 1.125rem; font-weight: 500; }
+                .analytics-logo-orb-v2 { width: 56px; height: 56px; background: var(--accent); border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(99, 102, 241, 0.4); }
+
+                /* Premium Glass Panels */
+                .premium-glass-panel {
+                    background: rgba(15, 23, 42, 0.6);
+                    backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                    padding: 32px;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 }
-                .ai-text-input:focus {
-                    outline: none;
-                    border-color: var(--accent);
+                .analytics-col-sidebar .premium-glass-panel { border-bottom: 1px solid var(--border); }
+                .analytics-col-primary .premium-glass-panel { border-left: 1px solid var(--border); min-height: 100%; }
+
+                .panel-header-v2 { margin-bottom: 24px; }
+                .panel-label-v2 { font-size: 0.9rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); margin-bottom: 4px; }
+                .panel-sublabel-v2 { font-size: 0.8125rem; color: var(--text-muted); font-weight: 500; opacity: 0.7; }
+                .primary-title { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-bottom: 2px; }
+
+                /* Radar & Legend */
+                .radar-glow-container { background: radial-gradient(circle at center, rgba(99, 102, 241, 0.1) 0%, transparent 70%); }
+                .distribution-legend-v2 { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05); }
+                .legend-item-v2 { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: rgba(255,255,255,0.03); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+                .legend-dot-v2 { width: 6px; height: 6px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+
+                /* AI Side Widget */
+                .ai-chat-viewport-v2 { height: 300px; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; background: rgba(0,0,0,0.2); border-radius: 12px; margin-bottom: 16px; }
+                .chat-bubble-v2 { max-width: 90%; padding: 10px 14px; border-radius: 12px; font-size: 0.8125rem; line-height: 1.5; color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.05); }
+                .row-user .chat-bubble-v2 { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+                .row-bot .chat-bubble-v2 { background: var(--bg-tertiary); border-bottom-left-radius: 2px; }
+                .chat-control-area-v2 { display: flex; gap: 8px; }
+                .chat-input-field-v2 { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.8125rem; color: var(--text-primary); outline: none; }
+                .chat-send-btn-v2 { width: 36px; height: 36px; background: var(--accent); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+
+                /* Blindspot Banner */
+                .blindspot-banner-v2 { background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, transparent 100%); border-radius: 16px; padding: 24px; position: relative; overflow: hidden; margin-bottom: 40px; border: 1px solid rgba(239, 68, 68, 0.2); }
+                .banner-accent { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--error); box-shadow: 0 0 15px var(--error); }
+                .alert-icon-shell { width: 48px; height: 48px; min-width: 48px; background: rgba(239,68,68,0.2); color: var(--error); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+                .pulse-red { animation: pulse-red-glow 2s infinite; }
+                @keyframes pulse-red-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 20px 0 rgba(239,68,68,0.2); } }
+                .banner-label { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.2em; color: var(--error); margin-bottom: 4px; }
+                .banner-title { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
+                .banner-text { font-size: 0.875rem; color: var(--text-muted); }
+
+                /* Mission Cards */
+                .mission-cluster { margin-bottom: 48px; }
+                .cluster-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+                .cluster-id-pill { background: var(--accent); color: white; font-size: 0.7rem; font-weight: 900; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+                .cluster-title { font-size: 1.125rem; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+                .cluster-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+
+                .mission-cards-stack { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 16px; }
+                .neural-mission-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: space-between; text-decoration: none; position: relative; }
+                .neural-mission-card:hover { transform: translateY(-4px) scale(1.02); background: rgba(255,255,255,0.05); border-color: var(--accent); box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.3); }
+                
+                .mission-status-indicator { width: 4px; height: 24px; background: var(--border); border-radius: 2px; margin-right: 16px; transition: all 0.3s; }
+                .neural-mission-card:hover .mission-status-indicator { background: var(--accent); box-shadow: 0 0 10px var(--accent); height: 40px; }
+
+                .mission-card-content { display: flex; align-items: center; }
+                .mission-id { font-family: monospace; font-weight: 800; color: var(--accent); font-size: 0.9rem; margin-right: 12px; opacity: 0.8; }
+                .mission-name { font-weight: 700; font-size: 1rem; color: var(--text-primary); }
+                .mission-meta-pills { display: flex; gap: 8px; margin-top: 6px; }
+                .rating-glow-pill { font-size: 0.75rem; font-weight: 900; background: rgba(255,255,255,0.03); padding: 2px 10px; border-radius: 6px; }
+                .difficulty-pill { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; background: rgba(255,255,255,0.02); padding: 2px 10px; border-radius: 6px; }
+
+                .mission-launch { display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateX(10px); transition: all 0.3s; }
+                .neural-mission-card:hover .mission-launch { opacity: 1; transform: translateX(0); }
+                .launch-text { font-size: 0.7rem; font-weight: 900; color: var(--accent); letter-spacing: 0.1em; }
+                .launch-icon { color: var(--accent); }
+
+                .reroll-mission-btn { display: flex; align-items: center; gap: 10px; background: var(--bg-tertiary); border: 1px solid var(--border); padding: 8px 16px; border-radius: 12px; color: var(--text-primary); font-size: 0.8125rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+                .reroll-mission-btn:hover:not(:disabled) { background: var(--accent); color: white; border-color: var(--accent); transform: translateY(-2px); }
+
+                /* Rating Helpers */
+                @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                .animate-fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+
+                /* Neural Loader */
+                .neural-loader-ring { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+                .ring-inner { position: absolute; inset: 0; border: 2px solid var(--accent); border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; animation: morph 4s linear infinite; opacity: 0.3; }
+                @keyframes morph {
+                  0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; transform: rotate(0deg); }
+                  25% { border-radius: 58% 42% 75% 25% / 56% 44% 56% 44%; }
+                  50% { border-radius: 50% 50% 33% 67% / 63% 37% 63% 37%; transform: rotate(180deg); }
+                  75% { border-radius: 42% 58% 51% 49% / 51% 49% 51% 49%; }
                 }
+                .loading-message-text { color: var(--accent); font-size: 0.875rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+                .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+                @keyframes slideUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+                
+                .loading-bar-tracker { width: 240px; height: 2px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+                .inner-progress { height: 100%; background: var(--accent); transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px var(--accent); }
             `}</style>
         </div>
     );
 }
+
+
+const getRatingColor = (r) => {
+    if (r < 1200) return '#808080'; // Newbie
+    if (r < 1400) return '#00ff00'; // Pupil
+    if (r < 1600) return '#03a89e'; // Specialist
+    if (r < 1900) return '#0000ff'; // Expert
+    if (r < 2100) return '#aa00aa'; // CM
+    if (r < 2300) return '#ff8c00'; // Master
+    return '#ff0000'; // GM+
+};

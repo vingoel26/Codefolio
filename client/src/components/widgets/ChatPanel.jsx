@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { 
     MessageSquare, 
     Hash, 
@@ -23,9 +24,12 @@ const CHANNELS = [
 import ChatInterface from '../chat/ChatInterface';
 
 export default function ChatPanel() {
+    const location = useLocation();
+    const isChatRoute = location.pathname === '/chat';
+
     // Position and Size state
-    const [pos, setPos] = useState({ x: window.innerWidth - 500, y: 100 });
-    const [size, setSize] = useState({ width: 450, height: 650 });
+    const [pos, setPos] = useState({ x: window.innerWidth - 560, y: 80 });
+    const [size, setSize] = useState({ width: 520, height: 700 });
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
 
@@ -94,6 +98,8 @@ export default function ChatPanel() {
             window.removeEventListener('mouseup', onMouseUp);
         };
     }, [isDragging, isResizing]);
+
+    if (isChatRoute) return null;
 
     return (
         <>

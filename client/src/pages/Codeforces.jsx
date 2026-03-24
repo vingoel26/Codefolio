@@ -82,11 +82,19 @@ export default function Codeforces() {
                 </div>
                 <div className="chart-card glass-card">
                     <h3 className="chart-title">Languages Used</h3>
-                    <ResponsiveContainer width="100%" height={220}>
-                        <PieChart>
-                            <Pie data={langData.map(([name, value]) => ({ name, value }))} innerRadius={50} outerRadius={85} paddingAngle={2} dataKey="value" nameKey="name"
-                                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
-                                {langData.map(([, ], i) => <Cell key={i} fill={LANG_COLORS[i]} />)}
+                    <ResponsiveContainer width="100%" height={250}>
+                        <PieChart margin={{ top: 20, right: 40, left: 40, bottom: 20 }}>
+                            <Pie 
+                                data={langData.map(([name, value]) => ({ name, value }))} 
+                                innerRadius={45} 
+                                outerRadius={70} 
+                                paddingAngle={2} 
+                                dataKey="value" 
+                                nameKey="name"
+                                label={({ name, percent }) => `${name.split(' ')[0]} ${(percent * 100).toFixed(0)}%`} 
+                                labelLine={false}
+                            >
+                                {langData.map(([, ], i) => <Cell key={i} fill={LANG_COLORS[i % LANG_COLORS.length]} />)}
                             </Pie>
                             <Tooltip contentStyle={tooltipStyle} />
                         </PieChart>

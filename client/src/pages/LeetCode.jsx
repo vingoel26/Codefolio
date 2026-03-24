@@ -225,9 +225,9 @@ const lcStyles = `
     .chart-card { padding:20px; border-radius:var(--radius-lg); }
     .chart-title { font-size:0.9rem; font-weight:700; margin-bottom:14px; }
 
-    .donut-center { position:absolute; top:50%; left:25%; transform:translate(-30%, -30%); text-align:center; pointer-events:none; }
-    .donut-total { font-size:1.5rem; font-weight:800; display:block; color:var(--text-primary); }
-    .donut-label { font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; }
+    .donut-center { position:absolute; top:calc(50% + 16px); left:50%; transform:translate(-50%, -50%); text-align:center; pointer-events:none; }
+    .donut-total { font-size:1.5rem; font-weight:900; display:block; color:var(--text-primary); line-height:1; }
+    .donut-label { font-size:0.55rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; font-weight:700; }
 
     .badge-grid { display:flex; flex-wrap:wrap; gap:10px; }
     .badge-item { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:var(--radius-md); background:var(--bg-tertiary); border:1px solid var(--border); font-size:0.75rem; font-weight:600; color:var(--text-secondary); }

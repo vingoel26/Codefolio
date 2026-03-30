@@ -307,156 +307,173 @@ erDiagram
 ### Landing Page
 > The entry point with hero section, feature highlights, and call-to-action.
 
-![Landing Page](docs/screenshots/landing.png)
+<img width="1920" height="932" alt="image" src="https://github.com/user-attachments/assets/0bbeed12-f4dd-469f-a7d8-84e60dc15833" />
+
 
 ---
 
 ### Dashboard
 > Unified overview of all linked platform stats, rating charts, and problem breakdowns.
 
-![Dashboard](docs/screenshots/dashboard.png)
+<img width="1920" height="932" alt="image" src="https://github.com/user-attachments/assets/5a81fd29-f736-4f65-9611-6330a5598199" />
+<img width="1920" height="932" alt="image" src="https://github.com/user-attachments/assets/0b5ce9f4-4f2c-49fe-ae34-34e4962a8a0d" />
+
 
 ---
 
 ### Codeforces Stats
 > Detailed Codeforces profile with rating graph, contest history, and problem statistics.
 
-![Codeforces](docs/screenshots/codeforces.png)
+<img width="1920" height="932" alt="image" src="https://github.com/user-attachments/assets/803f6276-6e3a-4cb1-8790-3b86390c35cf" />
+<img width="1920" height="932" alt="image" src="https://github.com/user-attachments/assets/9a61b8da-269a-49ad-bfc5-d79d99c2c25f" />
+<img width="1920" height="932" alt="image" src="https://github.com/user-attachments/assets/03069f8e-5b17-4918-a6c1-498c4b1c0153" />
+
 
 ---
 
 ### LeetCode Stats
 > LeetCode profile with problem difficulty breakdown, streak tracking, and acceptance rates.
+<img width="1920" height="932" alt="image" src="https://github.com/user-attachments/assets/4309e91a-293d-46b2-a6e2-9877c401ac2e" />
+<img width="1920" height="932" alt="image" src="https://github.com/user-attachments/assets/640da030-32ba-4703-b892-88c8c531a3fe" />
+<img width="1920" height="932" alt="image" src="https://github.com/user-attachments/assets/c11c33a0-f310-458f-9d9f-0fc12581bc00" />
 
-![LeetCode](docs/screenshots/leetcode.png)
 
 ---
 
 ### CodeChef Stats
 > CodeChef profile with division info, rating history, and star rating.
+ <img width="1920" height="932" alt="image" src="https://github.com/user-attachments/assets/0ab2f4f8-7952-43ec-946a-04a4d6dba899" />
 
-![CodeChef](docs/screenshots/codechef.png)
+
 
 ---
 
 ### GeeksforGeeks Stats
 > GFG profile with coding score, problem breakdown by difficulty, and institution rank.
 
-![GeeksforGeeks](docs/screenshots/gfg.png)
+<img width="1920" height="932" alt="image" src="https://github.com/user-attachments/assets/3383b61b-694f-4cf7-92f9-6fe94d47a596" />
+
 
 ---
 
 ### AI Coach
 > Gemini-powered AI coach that gives personalized competitive programming advice based on your stats.
 
-![AI Coach](docs/screenshots/ai_coach.png)
+<img width="1667" height="930" alt="image" src="https://github.com/user-attachments/assets/a097519f-4bd6-4262-825f-40f438d03b7a" />
 
 ---
 
 ### Smart Analytics
 > Radar chart blind-spot detection and auto-generated training bootcamp with curated problems.
+<img width="1667" height="930" alt="image" src="https://github.com/user-attachments/assets/13c0d633-1723-4967-8d24-41dfdb6f46ec" />
 
-![Smart Analytics](docs/screenshots/smart_analytics.png)
 
 ---
 
 ### Code Battle Arena — Lobby
 > Create or join 1v1 battles, select difficulty range and Codeforces handle.
 
-![Arena Lobby](docs/screenshots/arena_lobby.png)
+<img width="1667" height="930" alt="image" src="https://github.com/user-attachments/assets/3e592b98-99af-4857-aeb0-e0f10cb47717" />
+
 
 ---
 
 ### Code Battle Arena — Battle Room
 > Real-time battle with live timer, submission tracking, verdict updates, and integrated chat.
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/aba19652-3a0a-4b2e-a714-5d2e3ab55252" />
 
-![Battle Room](docs/screenshots/battle_room.png)
 
 ---
 
 ### Blog — Feed
 > Browse community articles, editorials, discussion posts, and interview experiences.
 
-![Blog Feed](docs/screenshots/blog_feed.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/f2c178b6-cd91-482f-bb7b-06bf8f4b0e73" />
+
 
 ---
 
 ### Blog — Editor
 > TipTap-powered rich text editor with code blocks, images, and multi-type post creation.
 
-![Blog Editor](docs/screenshots/blog_editor.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/9e449973-d58b-44d0-a6e8-3d9efea3ff06" />
+
 
 ---
 
 ### Blog — Post View
 > Full post view with upvotes, bookmarks, and threaded comment system.
 
-![Post View](docs/screenshots/post_view.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/93e72878-5a14-41e7-9c88-3a3917fe9bdb" />
+
 
 ---
 
 ### Portfolio Engine
 > Shareable public portfolio with GSAP cinematic animations and platform stats.
 
-![Portfolio Engine](docs/screenshots/portfolio.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/b23c8b30-5851-4beb-93f7-d3be84802cdf" />
+
 
 ---
 
 ### Profile
 > Public profile with unified heatmap, platform breakdown, follower system, and embeddable badges.
 
-![Profile](docs/screenshots/profile.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/c0e3f7b8-2271-4337-bf0e-66d60124a907" />
+
 
 ---
 
 ### Snippet Vault
 > Personal algorithm template library with multi-language support and one-click copy.
 
-![Snippet Vault](docs/screenshots/snippets.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/18a26409-a847-425b-aac1-55750549956f" />
+
 
 ---
 
 ### Contest Calendar
 > Aggregated upcoming contests from all platforms with browser notification reminders.
 
-![Contest Calendar](docs/screenshots/contests.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/5d9a5743-aaa1-42c7-97f6-1845057cacb3" />
+
 
 ---
 
 ### Community Feed
 > Activity feed showing events from followed users.
 
-![Community Feed](docs/screenshots/community_feed.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/eb80281f-bc02-44db-83fa-2856b8dc0785" />
+
 
 ---
 
 ### Chat
 > Real-time messaging with global channels and private conversations.
 
-![Chat](docs/screenshots/chat.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/09838a6c-fce0-4659-8410-26ae456186c3" />
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/c99137a8-b76e-4cda-bb2b-4e564fb4fd53" />
+
 
 ---
 
 ### Accounts — Platform Linking
 > Link and manage multiple accounts per platform.
 
-![Accounts](docs/screenshots/accounts.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/a90bdd71-34bf-4b68-8b9a-72b87acab7d7" />
+
 
 ---
 
 ### Settings
 > Profile customization, portfolio configuration, and theme preferences.
 
-![Settings](docs/screenshots/settings.png)
+<img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/0cdd54fb-faa2-40e7-adeb-a9983a9a8964" />
+
 
 ---
 
-### Authentication
-> Login/signup with email-password or OAuth (Google, GitHub).
-
-![Authentication](docs/screenshots/auth.png)
-
----
 
 ## Tech Stack
 
